@@ -1,10 +1,6 @@
 package boxoffice;
 
 import boxoffice.ui.HomePage;
-import boxoffice.ui.TicketSalesPage;
-import boxoffice.ui.GroupBookingsPage;
-import boxoffice.ui.RefundsPage;
-import boxoffice.ui.ReportsPage;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -15,6 +11,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         BoxOfficeManager boxOfficeManager = new BoxOfficeManager();
+
+        //DatabaseConnection db = new DatabaseConnection();
 
         // Initialize the main layout (BorderPane) for the home page
         BorderPane root = new BorderPane();

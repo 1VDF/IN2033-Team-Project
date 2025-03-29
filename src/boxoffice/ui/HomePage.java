@@ -189,7 +189,7 @@ public class HomePage extends VBox {
 
 
     private void showTicketSalesPage() {
-        TicketSalesPage ticketSalesPage = new TicketSalesPage(boxOfficeManager);
+        TicketSalesPage ticketSalesPage = new TicketSalesPage();
         this.getScene().setRoot(ticketSalesPage);
     }
 
