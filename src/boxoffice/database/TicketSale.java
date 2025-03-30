@@ -8,11 +8,12 @@ public class TicketSale {
     private Discount discount;
     private GroupBooking groupBooking;
     private Staff staff;
+    private Customer customer;
 
     // Constructors
     public TicketSale() {}
 
-    public TicketSale(int ticketSaleId, double price, Performance performance,
+    public TicketSale(int ticketSaleId, double price, Performance performance, Customer customer,
                       Discount discount, GroupBooking groupBooking, Staff staff) {
         this.ticketSaleId = ticketSaleId;
         this.price = price;
@@ -20,6 +21,7 @@ public class TicketSale {
         this.discount = discount;
         this.groupBooking = groupBooking;
         this.staff = staff;
+        this.customer = customer;
     }
 
     // Getters and Setters
@@ -40,4 +42,12 @@ public class TicketSale {
 
     public Staff getStaff() { return staff; }
     public void setStaff(Staff staff) { this.staff = staff; }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
 }

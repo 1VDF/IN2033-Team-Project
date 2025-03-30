@@ -189,8 +189,8 @@ public class HomePage extends VBox {
 
 
     private void showTicketSalesPage() {
-        TicketSalesPage ticketSalesPage = new TicketSalesPage();
-        this.getScene().setRoot(ticketSalesPage);
+        PerformancePage performancePage = new PerformancePage();
+        this.getScene().setRoot(performancePage);
     }
 
     private void showGuestCheckinPage() {

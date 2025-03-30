@@ -1,327 +1,752 @@
 package boxoffice.ui;
 
+import boxoffice.BoxOfficeManager;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.geometry.Insets;
-import java.sql.*;
-import java.util.*;
+import javafx.stage.Stage;
 
 public class TicketSalesPage extends VBox {
-
-    private ComboBox<String> performanceComboBox;
-    private GridPane seatingPlan;
-    private Map<String, Button> seatButtons = new HashMap<>();
-    private List<String> selectedSeats = new ArrayList<>();
-    private Label statusLabel;
-    private ComboBox<String> discountComboBox;
-    private TextField customerNameField;
-    private Connection connection;
+    private Stage stage;
 
     public TicketSalesPage() {
         initializeUI();
     }
 
-    private void initializeUI() {
-        this.setSpacing(10);
-        this.setPadding(new Insets(15));
+    public void initializeUI(){
+        // Load the seating plan image
+        Image seatingPlanImage = new Image("boxoffice/data/MainHall-SeatingPlan.png");
+        ImageView imageView = new ImageView(seatingPlanImage);
 
-        // Performance selection
-        Label performanceLabel = new Label("Select Performance:");
-        performanceComboBox = new ComboBox<>();
-        updatePerformanceComboBox();
+        // Bind the image's width and height to the scene's width and height
+        //imageView.setPreserveRatio(true); // Maintain aspect ratio of the image
+        imageView.setSmooth(true); // Optional: Smooth scaling for better quality
+        imageView.setOpacity(0.5);
+        imageView.setFitWidth(1000); // Initial width, you can adjust this value
+        imageView.setFitHeight(625); // Initial height, you can adjust this value
 
-        // Customer information
-        Label customerLabel = new Label("Customer Name:");
-        customerNameField = new TextField();
+        // Create a pane to hold the buttons
+        Pane buttonPane = new Pane();
+        buttonPane.setPrefSize(seatingPlanImage.getWidth(), seatingPlanImage.getHeight());
 
-        // Discount selection
-        Label discountLabel = new Label("Discount Type:");
-        discountComboBox = new ComboBox<>();
-        discountComboBox.getItems().addAll("None", "NHS", "Military", "Student", "Staff");
-        discountComboBox.setValue("None");
+        // Create balcony seats (top rows)
+        createCCBalconySeats(buttonPane);
 
-        // Seating plan container
-        seatingPlan = new GridPane();
-        seatingPlan.setHgap(5);
-        seatingPlan.setVgap(5);
-        ScrollPane scrollPane = new ScrollPane(seatingPlan);
-        scrollPane.setFitToWidth(true);
+        createBBBalconySeatsV1(buttonPane);
+        createBBBalconySeatsV2(buttonPane);
+        createBBBalconySeatsV3(buttonPane);
 
-        // Status label
-        statusLabel = new Label();
-        statusLabel.setStyle("-fx-text-fill: #333; -fx-font-weight: bold;");
+        createAABalconySeatsV1(buttonPane);
+        createAABalconySeatsV2(buttonPane);
+        createAABalconySeatsV3(buttonPane);
 
-        // Action buttons
-        Button sellTicketsButton = new Button("Confirm Booking");
-        sellTicketsButton.setOnAction(e -> confirmBooking());
+        // Create stalls seats (from your image)
+        createStallsSeatsRowQ(buttonPane);
+        createStallsSeatsRowP(buttonPane);
+        createStallsSeatsRowO(buttonPane);
+        createStallsSeatsRowN(buttonPane);
+        createStallsSeatsRowM(buttonPane);
+        createStallsSeatsRowL(buttonPane);
+        createStallsSeatsRowK(buttonPane);
+        createStallsSeatsRowJ(buttonPane);
+        createStallsSeatsRowH(buttonPane);
+        createStallsSeatsRowG(buttonPane);
+        createStallsSeatsRowF(buttonPane);
+        createStallsSeatsRowE(buttonPane);
+        createStallsSeatsRowD(buttonPane);
+        createStallsSeatsRowC(buttonPane);
+        createStallsSeatsRowB(buttonPane);
+        createStallsSeatsRowA(buttonPane);
 
-        Button resetSelectionButton = new Button("Reset Selection");
-        resetSelectionButton.setOnAction(e -> resetSelection());
+        // Combine the image and buttons
+        StackPane root = new StackPane(imageView, buttonPane);
 
-        // Layout
-        HBox buttonBox = new HBox(10, sellTicketsButton, resetSelectionButton);
-        buttonBox.setPadding(new Insets(10, 0, 0, 0));
+        getChildren().addAll(root);
 
-        getChildren().addAll(
-                performanceLabel, performanceComboBox,
-                customerLabel, customerNameField,
-                discountLabel, discountComboBox,
-                new Label("Seating Plan:"), scrollPane,
-                statusLabel,
-                buttonBox
-        );
-
-        // Event handlers
-        performanceComboBox.setOnAction(e -> {
-            String selectedPerformance = performanceComboBox.getValue();
-            if (selectedPerformance != null) {
-                updateSeatingPlan(selectedPerformance);
-            }
-        });
     }
 
-    private void updatePerformanceComboBox() {
-        performanceComboBox.getItems().clear();
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT title FROM Performance")) {
+    private void createCCBalconySeats(Pane pane) {
+        // Balcony seats (Cc 1-8)
+        double startX = 375; // Adjust these values based on your actual image
+        double startY = 20;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
 
-            while (rs.next()) {
-                performanceComboBox.getItems().add(rs.getString("title"));
-            }
+        Label label = new Label("CC");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
 
-            if (!performanceComboBox.getItems().isEmpty()) {
-                performanceComboBox.setValue(performanceComboBox.getItems().get(0));
-                updateSeatingPlan(performanceComboBox.getValue());
-            }
-        } catch (SQLException e) {
-            showAlert("Database Error", "Could not load performances: " + e.getMessage());
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 8; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("CC " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
         }
     }
 
-    private void updateSeatingPlan(String performanceTitle) {
-        seatingPlan.getChildren().clear();
-        seatButtons.clear();
-        selectedSeats.clear();
-        statusLabel.setText("");
+    private void createBBBalconySeatsV1(Pane pane) {
+        // Balcony seats (BB 6 - 23)
+        double startX = 75; // Adjust these values based on your actual image
+        double startY = 250;
+        double seatWidth = 30;
+        double seatHeight = 30;
+        double gap = 0;
 
-        try {
-            // Get room assignment for this performance
-            int roomId = -1;
-            String roomQuery = "SELECT room_id FROM Room_Assignment ra " +
-                    "JOIN Performance p ON ra.performance_id = p.performance_id " +
-                    "WHERE p.title = ?";
-            try (PreparedStatement pstmt = connection.prepareStatement(roomQuery)) {
-                pstmt.setString(1, performanceTitle);
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    roomId = rs.getInt("room_id");
-                }
-            }
+        Label label = new Label("BB");
+        label.setLayoutX(startX + 7);
+        label.setLayoutY(startY - 140);
+        pane.getChildren().add(label);
 
-            if (roomId == -1) {
-                showAlert("Error", "No room assigned for this performance");
-                return;
-            }
-
-            // Get all seats for this room and their booking status
-            String seatQuery = "SELECT s.row_number, s.seat_number, s.is_booked, " +
-                    "pb.pre_booked_id IS NOT NULL AS is_prebooked " +
-                    "FROM Seat s " +
-                    "LEFT JOIN Pre_Booked pb ON s.row_number = pb.row_number AND s.seat_number = pb.seat_number " +
-                    "WHERE s.room_id = ?";
-
-            // Add screen at the top
-            Label screenLabel = new Label(" S C R E E N ");
-            screenLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16;");
-            seatingPlan.add(screenLabel, 0, 0, 20, 1);
-
-            try (PreparedStatement pstmt = connection.prepareStatement(seatQuery)) {
-                pstmt.setInt(1, roomId);
-                ResultSet rs = pstmt.executeQuery();
-
-                while (rs.next()) {
-                    String row = rs.getString("row_number");
-                    int seatNum = rs.getInt("seat_number");
-                    boolean isBooked = rs.getBoolean("is_booked") || rs.getBoolean("is_prebooked");
-                    String seatId = row + seatNum;
-
-                    Button seatButton = new Button(seatId);
-                    seatButton.setPrefSize(40, 40);
-                    seatButtons.put(seatId, seatButton);
-
-                    if (isBooked) {
-                        seatButton.setStyle("-fx-base: #ff6b6b;"); // Red for booked
-                        seatButton.setDisable(true);
-                    } else {
-                        seatButton.setStyle("-fx-base: #a5d8ff;"); // Blue for available
-                        seatButton.setOnMouseClicked(e -> handleSeatSelection(seatId));
-                    }
-
-                    // Add to grid - adjust positioning as needed
-                    seatingPlan.add(seatButton, seatNum, getRowIndex(row) + 1); // +1 for screen row
-                }
-            }
-        } catch (SQLException e) {
-            showAlert("Database Error", "Could not load seating plan: " + e.getMessage());
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 5; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("BB " + i);
+            seat.setLayoutX(startX);
+            seat.setLayoutY(startY - (i - 1) * (seatHeight + gap));
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
         }
     }
 
-    private int getRowIndex(String rowLetter) {
-        return rowLetter.charAt(0) - 'A' + 1;
+    private void createBBBalconySeatsV2(Pane pane){
+        // Balcony seats (BB 6 - 23)
+        double startX = 75; // Adjust these values based on your actual image
+        double startY = 45;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("BB");
+        label.setLayoutX(startX + 130);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 6; i <= 23; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("BB " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+        }
     }
 
-    private void handleSeatSelection(String seatId) {
-        Button seatButton = seatButtons.get(seatId);
-        if (selectedSeats.contains(seatId)) {
-            selectedSeats.remove(seatId);
-            seatButton.setStyle("-fx-base: #a5d8ff;"); // Blue for available
+    private void createBBBalconySeatsV3(Pane pane) {
+        // Balcony seats (BB 6 - 23)
+        double startX = 865; // Adjust these values based on your actual image
+        double startY = -460;
+        double seatWidth = 30;
+        double seatHeight = 25;
+        double gap = 0;
+
+        Label label = new Label("BB");
+        label.setLayoutX(startX + 7);
+        label.setLayoutY(startY + 560);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 24; i <= 28; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("BB " + i);
+            seat.setLayoutX(startX);
+            seat.setLayoutY(startY + (i - 1) * (seatHeight + gap));
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+        }
+    }
+
+    private void createAABalconySeatsV1(Pane pane) {
+        // Balcony seats (BB 6 - 23)
+        double startX = 120; // Adjust these values based on your actual image
+        double startY = 560;
+        double seatWidth = 30;
+        double seatHeight = 25;
+        double gap = 0;
+
+        Label label = new Label("AA");
+        label.setLayoutX(startX + 7);
+        label.setLayoutY(startY - 490);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 20; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("AA " + i);
+            seat.setLayoutX(startX);
+            seat.setLayoutY(startY - (i - 1) * (seatHeight + gap));
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+        }
+    }
+
+    private void createAABalconySeatsV2(Pane pane){
+        // Balcony seats (AA 21 - 33)
+        double startX = -300; // Adjust these values based on your actual image
+        double startY = 70;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("AA");
+        label.setLayoutX(startX + 575);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 21; i <= 33; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("AA " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+        }
+    }
+
+    private void createAABalconySeatsV3(Pane pane) {
+        // Balcony seats (BB 6 - 23)
+        double startX = 825; // Adjust these values based on your actual image
+        double startY = -735;
+        double seatWidth = 30;
+        double seatHeight = 25;
+        double gap = 0;
+
+        Label label = new Label("AA");
+        label.setLayoutX(startX + 7);
+        label.setLayoutY(startY + 810);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 34; i <= 53; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("AA " + i);
+            seat.setLayoutX(startX);
+            seat.setLayoutY(startY + (i - 1) * (seatHeight + gap));
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+        }
+    }
+
+    private void createStallsSeatsRowQ(Pane pane) {
+        // (Stall seats - Row Q)
+        double startX = 340; // Adjust these values based on your actual image
+        double startY = 100;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("Q");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 10; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("Q " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 10){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowP(Pane pane) {
+        // (Stall seats - Row P)
+        double startX = 330; // Adjust these values based on your actual image
+        double startY = 120;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("P");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 11; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("P " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 11){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowO(Pane pane) {
+        // (Stall seats - Row O)
+        double startX = 180; // Adjust these values based on your actual image
+        double startY = 140;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("O");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 20; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("O " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 20){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowN(Pane pane) {
+        // (Stall seats - Row Q)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 170;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("N");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("N " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 19){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowM(Pane pane) {
+        // (Stall seats - Row M)
+        double startX = 240; // Adjust these values based on your actual image
+        double startY = 200;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("M");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+
+        for (int i = 1; i <= 16; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("M " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 16){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowL(Pane pane) {
+        // (Stall seats - Row L)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 230;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("L");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("L " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            pane.getChildren().add(seat);
+        }
+    }
+
+    private void createStallsSeatsRowK(Pane pane) {
+        // (Stall seats - Row L)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 260;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("K");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("K " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 19){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowJ(Pane pane) {
+        // (Stall seats - Row L)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 290;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("J");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("J " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 19){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowH(Pane pane) {
+        // (Stall seats - Row L)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 320;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("H");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("H " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 19){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowG(Pane pane) {
+        // (Stall seats - Row L)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 350;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("G");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("G " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 19){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowF(Pane pane) {
+        // (Stall seats - Row L)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 380;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("F");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("F " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 19){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowE(Pane pane) {
+        // (Stall seats - Row L)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 410;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("E");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("E " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 19){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowD(Pane pane) {
+        // (Stall seats - Row L)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 440;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("D");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("D " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 19){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowC(Pane pane) {
+        // (Stall seats - Row L)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 470;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("C");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("C " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 19){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowB(Pane pane) {
+        // (Stall seats - Row L)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 500;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("B");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("B " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #7a7a7a;"); // Default color is green
+            pane.getChildren().add(seat);
+
+            if(i == 1 || i == 19){
+                seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            }
+        }
+    }
+
+    private void createStallsSeatsRowA(Pane pane) {
+        // (Stall seats - Row L)
+        double startX = 200; // Adjust these values based on your actual image
+        double startY = 530;
+        double seatWidth = 30;
+        double seatHeight = 5;
+        double gap = 0;
+
+        Label label = new Label("A");
+        label.setLayoutX(startX - 20);
+        label.setLayoutY(startY + 5);
+        pane.getChildren().add(label);
+
+        // Create Cc 1-8 seats
+        for (int i = 1; i <= 19; i++) {
+            Button seat = new Button("" + i);
+            seat.setUserData("A " + i);
+            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
+            seat.setLayoutY(startY);
+            seat.setPrefSize(seatWidth, seatHeight);
+            seat.setOnAction(e -> handleSeatSelection(seat));
+            seat.setStyle("-fx-background-color: #8d0293;"); // Default color is green
+            pane.getChildren().add(seat);
+        }
+    }
+
+    private void handleSeatSelection(Button seat) {
+        // Retrieve row and seat number from button metadata (UserData)
+        Object data = seat.getUserData();
+
+        if (data instanceof String) {
+            String[] parts = ((String) data).split(" "); // Example format: "A 5"
+
+            if (parts.length == 2) {
+                String row = parts[0]; // Row letter (e.g., "A")
+                int seatNumber = Integer.parseInt(parts[1]); // Seat number (e.g., 5)
+
+                // Toggle the seat color on selection
+                String currentColor = seat.getStyle();
+
+                if (currentColor.contains("-fx-background-color: #5daf24;")) {
+                    // If it's green (unselected), change to red (selected)
+                    seat.setStyle("-fx-background-color: #d00303;");
+                    System.out.println("Selected seat: Row " + row + ", Seat " + seatNumber);
+                } else {
+                    // If it's red (selected), change back to green (unselected)
+                    seat.setStyle("-fx-background-color: #5daf24;");
+                    System.out.println("Deselected seat: Row " + row + ", Seat " + seatNumber);
+                }
+            }
         } else {
-            selectedSeats.add(seatId);
-            seatButton.setStyle("-fx-base: #51cf66;"); // Green for selected
+            System.out.println("Error: Seat data is missing.");
         }
-        updateStatusLabel();
-    }
-
-    private void updateStatusLabel() {
-        if (selectedSeats.isEmpty()) {
-            statusLabel.setText("No seats selected");
-            statusLabel.setTextFill(Color.BLACK);
-        } else {
-            statusLabel.setText("Selected: " + selectedSeats.size() + " seat(s) - " + String.join(", ", selectedSeats));
-            statusLabel.setTextFill(Color.DARKGREEN);
-        }
-    }
-
-    private void confirmBooking() {
-        if (selectedSeats.isEmpty()) {
-            statusLabel.setText("Please select at least one seat");
-            statusLabel.setTextFill(Color.RED);
-            return;
-        }
-
-        String performance = performanceComboBox.getValue();
-        if (performance == null) return;
-
-        String customerName = customerNameField.getText().trim();
-        if (customerName.isEmpty()) {
-            statusLabel.setText("Please enter customer name");
-            statusLabel.setTextFill(Color.RED);
-            return;
-        }
-
-        String discountType = discountComboBox.getValue();
-        if (discountType.equals("None")) {
-            discountType = null;
-        }
-
-        try {
-            connection.setAutoCommit(false); // Start transaction
-
-            // Get performance ID
-            int performanceId = -1;
-            try (PreparedStatement pstmt = connection.prepareStatement(
-                    "SELECT performance_id FROM Performance WHERE title = ?")) {
-                pstmt.setString(1, performance);
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    performanceId = rs.getInt("performance_id");
-                }
-            }
-
-            if (performanceId == -1) {
-                showAlert("Error", "Performance not found");
-                return;
-            }
-
-            // Create FOL record (assuming simple customer tracking)
-            int folId = -1;
-            try (PreparedStatement pstmt = connection.prepareStatement(
-                    "INSERT INTO FOL (name, email) VALUES (?, ?)",
-                    Statement.RETURN_GENERATED_KEYS)) {
-                pstmt.setString(1, customerName);
-                pstmt.setString(2, customerName.replaceAll("\\s+", "") + "@example.com");
-                pstmt.executeUpdate();
-
-                ResultSet rs = pstmt.getGeneratedKeys();
-                if (rs.next()) {
-                    folId = rs.getInt(1);
-                }
-            }
-
-            // Get discount ID if applicable
-            int discountId = 0; // 0 or some default for no discount
-            if (discountType != null) {
-                try (PreparedStatement pstmt = connection.prepareStatement(
-                        "SELECT discount_id FROM Discount WHERE discount_type = ? LIMIT 1")) {
-                    pstmt.setString(1, discountType);
-                    ResultSet rs = pstmt.executeQuery();
-                    if (rs.next()) {
-                        discountId = rs.getInt("discount_id");
-                    }
-                }
-            }
-
-            // Book each selected seat
-            for (String seatId : selectedSeats) {
-                String[] seatParts = seatId.split("(?<=\\D)(?=\\d)");
-                String rowNumber = seatParts[0];
-                int seatNumber = Integer.parseInt(seatParts[1]);
-
-                // Create Pre_Booked record
-                try (PreparedStatement pstmt = connection.prepareStatement(
-                        "INSERT INTO Pre_Booked (performance_id, row_number, seat_number, fol_id) " +
-                                "VALUES (?, ?, ?, ?)")) {
-                    pstmt.setInt(1, performanceId);
-                    pstmt.setString(2, rowNumber);
-                    pstmt.setInt(3, seatNumber);
-                    pstmt.setInt(4, folId);
-                    pstmt.executeUpdate();
-                }
-
-                // Update Seat status
-                try (PreparedStatement pstmt = connection.prepareStatement(
-                        "UPDATE Seat SET is_booked = 1 " +
-                                "WHERE row_number = ? AND seat_number = ?")) {
-                    pstmt.setString(1, rowNumber);
-                    pstmt.setInt(2, seatNumber);
-                    pstmt.executeUpdate();
-                }
-            }
-
-            connection.commit(); // Commit transaction
-            statusLabel.setText("Successfully booked " + selectedSeats.size() + " seat(s)");
-            statusLabel.setTextFill(Color.DARKGREEN);
-
-            // Refresh the seating plan
-            updateSeatingPlan(performance);
-
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                showAlert("Database Error", "Could not rollback transaction: " + ex.getMessage());
-            }
-            showAlert("Database Error", "Could not complete booking: " + e.getMessage());
-        } finally {
-            try {
-                connection.setAutoCommit(true);
-            } catch (SQLException e) {
-                showAlert("Database Error", "Could not reset auto-commit: " + e.getMessage());
-            }
-        }
-    }
-
-    private void resetSelection() {
-        selectedSeats.clear();
-        updateSeatingPlan(performanceComboBox.getValue());
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

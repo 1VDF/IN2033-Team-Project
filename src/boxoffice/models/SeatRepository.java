@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SeatRepository {
-    private final String Select_Statement = "Select * FROM `Seat`";
+    private final String Select_Statement = "Select * FROM `seat`";
 
 
     private static List<Seat> readSeatColumns(ResultSet rs) throws SQLException{
@@ -42,9 +42,9 @@ public class SeatRepository {
     public void setBookedSeat(Seat seat) throws SQLException {
         try (Connection connection = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
              Statement statement = connection.createStatement()) {
-            String sql = "UPDATE `Seat` SET `is_booked` = '1' WHERE `Seat`.`row_number` = " + seat.getRowNumber() +
-                    " AND `Seat`.`seat_number` = " + seat.getSeatNumber() +
-                    " AND `Seat`.`room_id` = " + seat.getLocation().getRoomId();
+            String sql = "UPDATE `seat` SET `is_booked` = '1' WHERE `seat`.`row_number` = " + seat.getRowNumber() +
+                    " AND `seat`.`seat_number` = " + seat.getSeatNumber() +
+                    " AND `seat`.`room_id` = " + seat.getLocation().getRoomId();
             int rowsAffected = statement.executeUpdate(sql);
 
             if(rowsAffected == 0){
@@ -56,10 +56,10 @@ public class SeatRepository {
     public void setRestrictedView(Seat seat, String restrictedType) throws SQLException {
         try (Connection connection = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
              Statement statement = connection.createStatement()) {
-            String sql = "UPDATE `Seat` SET `restricted_view` = " + restrictedType +
-                    " WHERE `Seat`.`row_number` = " + seat.getRowNumber() +
-                    " AND `Seat`.`seat_number` = " + seat.getSeatNumber() +
-                    " AND `Seat`.`room_id` = " + seat.getLocation().getRoomId();
+            String sql = "UPDATE `seat` SET `restricted_view` = " + restrictedType +
+                    " WHERE `seat`.`row_number` = " + seat.getRowNumber() +
+                    " AND `seat`.`seat_number` = " + seat.getSeatNumber() +
+                    " AND `seat`.`room_id` = " + seat.getLocation().getRoomId();
             int rowsAffected = statement.executeUpdate(sql);
 
             if(rowsAffected == 0){

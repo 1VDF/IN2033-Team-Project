@@ -13,7 +13,7 @@ public interface DBConnection{
     /**
      * This is the url used to connect to the database(MySQL).
      */
-    String url = "jdbc:mysql://localhost:3306/in2033t25";
+    String url = "jdbc:mysql://sst-stuproj.city.ac.uk:3306/in2033t25";
     /**
      * This is the username used to connect to the database(MySQL).
      */

@@ -11,7 +11,6 @@ public class Performance {
     private LocalDate date;
     private LocalTime startTime;
     private int durationMinutes;
-    private Location location;
 
     // Constructor
     public Performance(int performanceId, String title, String performanceType,
@@ -48,6 +47,16 @@ public class Performance {
     public int getDurationMinutes() { return durationMinutes; }
     public void setDurationMinutes(int durationMinutes) { this.durationMinutes = durationMinutes; }
 
-    public Location getLocation() { return location; }
-    public void setLocation(Location location) { this.location = location; }
+    @Override
+    public String toString() {
+        return "entity.performance{" +
+                "performance_id" + performanceId +
+                ", title='" + title + '\'' +
+                ", performance_type='" + performanceType + '\'' +
+                ", description='" + description + '\'' +
+                ", date=" + date +
+                ", start_time=" + startTime +
+                ", duration_inutes=" + durationMinutes +
+                '}';
+    }
 }
