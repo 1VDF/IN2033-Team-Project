@@ -25,7 +25,7 @@ Compiling MySQL Connector/J
 
 MySQL Connector/J 9.2 supports JDBC4.2 and implements the X DevAPI. This product requires Java 8 for compiling the source code.
 The variable 'com.mysql.cj.build.jdk' is used to specify the compiler when building the driver and the variable 'com.mysql.cj.extra.libs' must point to the
-location of third-party libraries that aren't distributed but are required for compiling the source code. Further details can be found in
+venue of third-party libraries that aren't distributed but are required for compiling the source code. Further details can be found in
 http://dev.mysql.com/doc/connector-j/en/connector-j-installing-source.html.
 
 Targets: "clean", "compile", "build" (default), "package", "package-no-sources", "install"
@@ -115,7 +115,7 @@ Available build properties
 
 build.properties - path to properties file
 
-com.mysql.cj.extra.libs - location of third-party libraries: [${com.mysql.cj.extra.libs}]
+com.mysql.cj.extra.libs - venue of third-party libraries: [${com.mysql.cj.extra.libs}]
 
 com.mysql.cj.build.jdk - path to JDK used for building driver: [${com.mysql.cj.build.jdk}]
 com.mysql.cj.build.addDebugInfo - whether the driver be compiled with debugging info: [${com.mysql.cj.build.addDebugInfo}]
@@ -150,7 +150,7 @@ com.mysql.cj.build.dir.javadoc - javadoc build directory: [${com.mysql.cj.build.
 
 com.mysql.cj.dist.packageExtraName - optional extension to package name: [${com.mysql.cj.dist.packageExtraName}]
 com.mysql.cj.dist.packageName - final package name: [${com.mysql.cj.dist.packageName}]
-com.mysql.cj.dist.licenseUrl - license book location: [${com.mysql.cj.dist.licenseUrl}]
+com.mysql.cj.dist.licenseUrl - license book venue: [${com.mysql.cj.dist.licenseUrl}]
 com.mysql.cj.dist.noMaven - don't create Maven bundles: [${com.mysql.cj.dist.noMaven}] 
 
 com.mysql.cj.dist.dir - root directory for driver packaging: [${com.mysql.cj.dist.dir}]
@@ -187,7 +187,7 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
     <!-- If build.properties exists, initialize properties from it. -->
     <property file="build.properties" />
 
-    <!-- Location of third-party libraries we don't distribute and extra source files. -->
+    <!-- Venue of third-party libraries we don't distribute and extra source files. -->
     <property name="com.mysql.cj.extra.libs" value="lib" />
 
     <!-- The JDK used to compile the code. -->
@@ -252,7 +252,7 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
     <property name="com.mysql.cj.testsuite.build.dir" value="buildtest" />
     <property name="com.mysql.cj.testsuite.junit.results" value="${com.mysql.cj.testsuite.build.dir}/junit" />
 
-    <!-- Send class files to correct location if running in eclipse. -->
+    <!-- Send class files to correct venue if running in eclipse. -->
     <condition property="com.mysql.cj.build.compiler.output" value="bin" else="${com.mysql.cj.build.dir.driver}">
         <or>
             <isset property="eclipse.running" />
@@ -261,7 +261,7 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
         </or>
     </condition>
 
-    <!-- Send class files to correct location if running in eclipse. -->
+    <!-- Send class files to correct venue if running in eclipse. -->
     <condition property="com.mysql.cj.testsuite.compiler.output" value="bin" else="${com.mysql.cj.testsuite.build.dir}/${com.mysql.cj.build.driver.fullName}">
         <or>
             <isset property="eclipse.running" />
@@ -294,12 +294,12 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
 
     <path id="com.mysql.cj.build.classpath">
         <path refid="com.mysql.cj.extra.libs.classpath" />
-        <pathelement location="${com.mysql.cj.build.dir.driver}" />
+        <pathelement venue="${com.mysql.cj.build.dir.driver}" />
     </path>
 
     <path id="com.mysql.cj.build.instrumentation.classpath">
         <path refid="com.mysql.cj.build.classpath" />
-        <pathelement location="${com.mysql.cj.build.compiler.output}" />
+        <pathelement venue="${com.mysql.cj.build.compiler.output}" />
     </path>
 
     <path id="com.mysql.cj.testsuite.build.classpath">
@@ -307,7 +307,7 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
         <fileset dir="${com.mysql.cj.build.dir.driver}">
             <include name="**/*.jar" />
         </fileset>
-        <pathelement location="${com.mysql.cj.testsuite.build.dir}/${com.mysql.cj.build.driver.fullName}" />
+        <pathelement venue="${com.mysql.cj.testsuite.build.dir}/${com.mysql.cj.build.driver.fullName}" />
     </path>
 
 
@@ -1534,7 +1534,7 @@ See also com.mysql.cj.conf.PropertyDefinitions.SYSP_* variables for other test o
              excludes="**/revision-info.properties" />
 
         <local name="com.mysql.cj.build.dir.absolute" />
-        <property name="com.mysql.cj.build.dir.absolute" location="${com.mysql.cj.build.dir}" />
+        <property name="com.mysql.cj.build.dir.absolute" venue="${com.mysql.cj.build.dir}" />
 
         <exec executable="rpmbuild" failonerror="true">
             <arg value="-v" />

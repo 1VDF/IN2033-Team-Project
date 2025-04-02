@@ -1,22 +1,19 @@
 package boxoffice.database;
 
 public class Seat {
+    private String seatID;
     private String rowNumber;
     private int seatNumber;
-    private String restrictedView; // "Clear", "Partially Blocked", "Blocked"
-    private boolean isAccessible;
+    private boolean isAccesible;
+
     private boolean isBooked;
-    private Location location;
 
     // Constructor
-    public Seat(String rowNumber, int seatNumber, String restrictedView,
-                boolean isAccessible, boolean isBooked, int roomID) {
+    public Seat(String seatID, String rowNumber, int seatNumber,boolean isAccessible) {
+        this.seatID = seatID;
         this.rowNumber = rowNumber;
         this.seatNumber = seatNumber;
-        this.restrictedView = restrictedView;
-        this.isAccessible = isAccessible;
-        this.isBooked = isBooked;
-        roomID = location.getRoomId();
+        this.isAccesible = isAccessible;
     }
 
     // Getters and Setters
@@ -26,27 +23,37 @@ public class Seat {
     public int getSeatNumber() { return seatNumber; }
     public void setSeatNumber(int seatNumber) { this.seatNumber = seatNumber; }
 
-    public String getRestrictedView() { return restrictedView; }
-    public void setRestrictedView(String restrictedView) { this.restrictedView = restrictedView; }
+    public String getSeatID() {
+        return seatID;
+    }
 
-    public boolean isAccessible() { return isAccessible; }
-    public void setAccessible(boolean accessible) { isAccessible = accessible; }
+    public void setSeatID(String seatID) {
+        this.seatID = seatID;
+    }
 
-    public boolean isBooked() { return isBooked; }
-    public void setBooked(boolean booked) { isBooked = booked; }
+    public boolean isAccesible() {
+        return isAccesible;
+    }
 
-    public Location getLocation() { return location; }
-    public void setLocation(Location location) { this.location = location; }
+    public void setAccesible(boolean accesible) {
+        isAccesible = accesible;
+    }
+
+    public boolean isBooked() {
+        return isBooked;
+    }
+
+    public void setBooked(boolean booked) {
+        isBooked = booked;
+    }
 
     @Override
     public String toString() {
-        return "entity.Seat{" +
-                "row_number='" + rowNumber + '\'' +
+        return "entity.seat{" +
+                "seat_id=" + seatID +
+                ", row_number='" + rowNumber + '\'' +
                 ", seat_number=" + seatNumber +
-                ", restricted_view='" + restrictedView + '\'' +
-                ", is_accessible=" + isAccessible +
-                ", is_booked=" + isBooked +
-                ", room_id=" + location +
+                ", is_accesible='" + isAccesible + '\'' +
                 '}';
     }
 }

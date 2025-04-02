@@ -4,15 +4,15 @@ public class OnlineSales {
     private int onlineSaleId;
     private String buyerEmail;
     private String transactionId;
-    private TicketSale ticketSale; // Associated ticket sale
+    private int ticketSaleID; // Associated ticket sale
 
     // Constructors
     public OnlineSales(int onlineSaleId, String buyerEmail,
-                      String transactionId, TicketSale ticketSale) {
+                      String transactionId, int ticketSaleID) {
         this.onlineSaleId = onlineSaleId;
         this.buyerEmail = buyerEmail;
         this.transactionId = transactionId;
-        this.ticketSale = ticketSale;
+        this.ticketSaleID = ticketSaleID;
     }
 
     // Getters and Setters
@@ -25,6 +25,11 @@ public class OnlineSales {
     public String getTransactionId() { return transactionId; }
     public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
 
-    public TicketSale getTicketSale() { return ticketSale; }
-    public void setTicketSale(TicketSale ticketSale) { this.ticketSale = ticketSale; }
+    public int getTicketSaleID() {
+        return ticketSaleID;
+    }
+
+    public void setTicketSaleID(int ticketSaleID) {
+        this.ticketSaleID = ticketSaleID;
+    }
 }

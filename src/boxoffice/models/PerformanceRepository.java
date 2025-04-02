@@ -3,6 +3,7 @@ package boxoffice.models;
 import boxoffice.database.DBConnection;
 import boxoffice.database.Performance;
 import boxoffice.database.Seat;
+import boxoffice.database.Venue;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -10,7 +11,10 @@ import java.util.List;
 
 public class PerformanceRepository {
 
+    private static Venue venue;
+
     public PerformanceRepository(){
+        this.venue = venue;
     }
     private static List<Performance> readPerformanceColumns(ResultSet rs) throws SQLException {
         List<Performance> performances = new ArrayList<>();
@@ -21,7 +25,8 @@ public class PerformanceRepository {
                     rs.getString("description"),
                     rs.getDate("date").toLocalDate(),
                     rs.getTime("start_time").toLocalTime(),
-                    rs.getInt("duration_minutes")));
+                    rs.getInt("duration_minutes"),
+                    (rs.getInt("venue_id"))));
         }
         for (Performance performance : performances) {
             System.out.println(performance);
@@ -37,6 +42,27 @@ public class PerformanceRepository {
             String Select_Statement = "SELECT * FROM `performance`";
             ResultSet rs = statement.executeQuery(Select_Statement);
             return readPerformanceColumns(rs);
+        }
+    }
+
+    public boolean addPerformance(Performance performance) throws SQLException {
+        String insertSQL = "INSERT INTO performance (title, performance_type, description, date, start_time, duration_minutes, venue_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection connection = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
+             PreparedStatement statement = connection.prepareStatement(insertSQL)) {
+
+            // Set parameters for the prepared statement
+            statement.setString(1, performance.getTitle());
+            statement.setString(2, performance.getPerformanceType());
+            statement.setString(3, performance.getDescription());
+            statement.setDate(4, Date.valueOf(performance.getDate()));
+            statement.setTime(5, Time.valueOf(performance.getStartTime()));
+            statement.setInt(6, performance.getDurationMinutes());
+            statement.setInt(7, performance.getVenueID());
+
+            int rowsAffected = statement.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 }

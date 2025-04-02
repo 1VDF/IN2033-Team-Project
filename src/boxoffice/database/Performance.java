@@ -11,11 +11,12 @@ public class Performance {
     private LocalDate date;
     private LocalTime startTime;
     private int durationMinutes;
+    private int venueID;
 
     // Constructor
     public Performance(int performanceId, String title, String performanceType,
                        String description, LocalDate date, LocalTime startTime,
-                       int durationMinutes) {
+                       int durationMinutes, int venueID) {
         this.performanceId = performanceId;
         this.title = title;
         this.performanceType = performanceType;
@@ -23,6 +24,7 @@ public class Performance {
         this.date = date;
         this.startTime = startTime;
         this.durationMinutes = durationMinutes;
+        this.venueID = venueID;
     }
 
     // Getters and Setters
@@ -47,16 +49,25 @@ public class Performance {
     public int getDurationMinutes() { return durationMinutes; }
     public void setDurationMinutes(int durationMinutes) { this.durationMinutes = durationMinutes; }
 
+    public int getVenueID() {
+        return venueID;
+    }
+
+    public void setVenueID(int venueID) {
+        this.venueID = venueID;
+    }
+
     @Override
     public String toString() {
         return "entity.performance{" +
-                "performance_id" + performanceId +
+                "performance_id=" + performanceId +
                 ", title='" + title + '\'' +
                 ", performance_type='" + performanceType + '\'' +
                 ", description='" + description + '\'' +
                 ", date=" + date +
                 ", start_time=" + startTime +
-                ", duration_inutes=" + durationMinutes +
+                ", duration_minutes=" + durationMinutes +
+                ", venue_id =" + venueID +
                 '}';
     }
 }

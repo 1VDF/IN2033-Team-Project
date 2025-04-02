@@ -2,23 +2,31 @@ package boxoffice.database;
 
 public class FOL {
     private int folId;
-    private String name;
-    private String email;
+    private String customerID;
 
     // Constructor
-    public FOL(int folId, String name, String email) {
+    public FOL(int folId, String customerID ) {
         this.folId = folId;
-        this.name = name;
-        this.email = email;
+        this.customerID = customerID;
     }
 
     // Getters and Setters
     public int getFolId() { return folId; }
     public void setFolId(int folId) { this.folId = folId; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getCustomerID() {
+        return customerID;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setCustomerID(String customerID) {
+        this.customerID = customerID;
+    }
+
+    @Override
+    public String toString() {
+        return "entity.fol{" +
+                "fol_id=" + folId +
+                ", customer_id=" + customerID +
+                '}';
+    }
 }

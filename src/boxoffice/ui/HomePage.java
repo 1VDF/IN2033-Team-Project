@@ -13,6 +13,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ public class HomePage extends VBox {
             TableColumn<Performance, String> timeColumn = new TableColumn<>("Time");
             timeColumn.setCellValueFactory(cellData -> cellData.getValue().performanceTimeProperty());
 
-            TableColumn<Performance, String> locationColumn = new TableColumn<>("Location");
+            TableColumn<Performance, String> locationColumn = new TableColumn<>("Venue");
             locationColumn.setCellValueFactory(cellData -> cellData.getValue().performanceLocationProperty());
 
             tableView.getColumns().add(nameColumn);

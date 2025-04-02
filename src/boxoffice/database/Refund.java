@@ -9,19 +9,19 @@ public class Refund {
     private double refundAmount;
     private String refundReason;
     private String refundStatus; // "Done", "Processing"
-    private TicketSale ticketSale;
-    private Staff staff;
+    private int ticketSaleID;
+    private int staffID;
 
     // Constructor
     public Refund(int refundId, LocalDate date, Double refundAmount,
-                  String refundReason, String refundStatus, TicketSale ticketSale, Staff staff) {
+                  String refundReason, String refundStatus, int ticketSaleID, int staffID) {
         this.refundId = refundId;
         this.date = date;
         this.refundAmount = refundAmount;
         this.refundReason = refundReason;
         this.refundStatus = refundStatus;
-        this.ticketSale = ticketSale;
-        this.staff = staff;
+        this.ticketSaleID = ticketSaleID;
+        this.staffID = staffID;
     }
 
     // Getters and Setters
@@ -40,9 +40,32 @@ public class Refund {
     public String getRefundStatus() { return refundStatus; }
     public void setRefundStatus(String refundStatus) { this.refundStatus = refundStatus; }
 
-    public TicketSale getTicketSale() { return ticketSale; }
-    public void setTicketSale(TicketSale ticketSale) { this.ticketSale = ticketSale; }
+    public int getTicketSaleID() {
+        return ticketSaleID;
+    }
 
-    public Staff getStaff() { return staff; }
-    public void setStaff(Staff staff) { this.staff = staff; }
+    public void setTicketSaleID(int ticketSaleID) {
+        this.ticketSaleID = ticketSaleID;
+    }
+
+    public int getStaffID() {
+        return staffID;
+    }
+
+    public void setStaffID(int staffID) {
+        this.staffID = staffID;
+    }
+
+    @Override
+    public String toString() {
+        return "entity.refund{" +
+                "refund_id=" + refundId +
+                ", date=" + date +
+                ", refund_amount=" + refundAmount +
+                ", refund_reason='" + refundReason + '\'' +
+                ", refund_status='" + refundStatus + '\'' +
+                ", ticket_sale_id=" + ticketSaleID +
+                ", staff_id=" + staffID +
+                '}';
+    }
 }

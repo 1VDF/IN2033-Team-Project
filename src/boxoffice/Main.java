@@ -22,7 +22,7 @@ public class Main extends Application {
         root.setCenter(homePage);
 
         // Set the stage with title, scene, and show
-        Scene scene = new Scene(root, 1000, 600);
+        Scene scene = new Scene(root, 1200, 800);
         primaryStage.setTitle("Box Office System");
         primaryStage.setScene(scene);
         primaryStage.show();

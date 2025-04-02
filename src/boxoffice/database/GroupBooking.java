@@ -5,13 +5,15 @@ public class GroupBooking {
     private String groupName;
     private String groupContact;
     private int numberOfTickets;
+    private String customerID;
 
     // Constructor
-    public GroupBooking(int groupId, String groupName, String groupContact, int numberOfTickets) {
+    public GroupBooking(int groupId, String groupName, String groupContact, int numberOfTickets, String customerID) {
         this.groupId = groupId;
         this.groupName = groupName;
         this.groupContact = groupContact;
         this.numberOfTickets = numberOfTickets;
+        this.customerID = customerID;
     }
 
     // Getters and Setters
@@ -26,4 +28,23 @@ public class GroupBooking {
 
     public int getNumberOfTickets() { return numberOfTickets; }
     public void setNumberOfTickets(int numberOfTickets) { this.numberOfTickets = numberOfTickets; }
+
+    public String getCustomerID() {
+        return customerID;
+    }
+
+    public void setCustomerID(String customerID) {
+        this.customerID = customerID;
+    }
+
+    @Override
+    public String toString() {
+        return "entity.group_booking{" +
+                "group_id=" + groupId +
+                ", group_name='" + groupName + '\'' +
+                ", group_contact='" + groupContact + '\'' +
+                ", number_of_tickets=" + numberOfTickets +
+                ", customer_id=" + customerID +
+                '}';
+    }
 }

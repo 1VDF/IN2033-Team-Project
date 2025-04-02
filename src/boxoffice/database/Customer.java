@@ -8,7 +8,7 @@ public class Customer {
 
     public Customer(){
     }
-    Customer(String customerID, String customerName, String phoneNumber, String email){
+    public Customer(String customerID, String customerName, String phoneNumber, String email){
         this.customerID = customerID;
         this.customerName = customerName;
         this.phoneNumber = phoneNumber;
