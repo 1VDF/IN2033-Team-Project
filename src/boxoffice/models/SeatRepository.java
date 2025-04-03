@@ -5,10 +5,7 @@ import boxoffice.database.Venue;
 import boxoffice.database.Seat;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SeatRepository {
     private final String Select_Statement = "Select * FROM `seat`";
@@ -30,6 +27,8 @@ public class SeatRepository {
         return seats;
     }
 
+
+
     public static List<String> getAccessibleSeatIDs() throws SQLException {
         List<String> accessibleSeatIDs = new ArrayList<>();
 
@@ -45,5 +44,33 @@ public class SeatRepository {
             }
             return accessibleSeatIDs;
         }
+    }
+
+
+    // Method to get the seating breakdown (available, accessible, sold, restricted view) for a specific performance
+    public static Map<String, Integer> getSeatingBreakdown(int performanceId) throws SQLException {
+        Map<String, Integer> seatingBreakdown = new HashMap<>();
+
+        // SQL query to get the seat status breakdown for the specified performance
+        String query = "SELECT seat_status, COUNT(*) as count " +
+                "FROM seat " +
+                "WHERE performance_id = ? " +
+                "GROUP BY seat_status";
+
+        try (Connection connection = DriverManager.getConnection(
+                DBConnection.url, DBConnection.user, DBConnection.pass);
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, performanceId);
+            ResultSet rs = stmt.executeQuery();
+
+            // Process the result set
+            while (rs.next()) {
+                String status = rs.getString("seat_status");
+                int count = rs.getInt("count");
+                seatingBreakdown.put(status, count);
+            }
+        }
+
+        return seatingBreakdown;
     }
 }

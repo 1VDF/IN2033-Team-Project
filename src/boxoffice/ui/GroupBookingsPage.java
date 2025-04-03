@@ -48,7 +48,7 @@ public class GroupBookingsPage extends VBox {
             }
 
             // Call BoxOfficeManager to create the group booking
-            boxOfficeManager.createGroupBooking(groupName, seats);
+            //boxOfficeManager.createGroupBooking(groupName, seats, );
 
             //  confirmation message
             showConfirmation("Group booking created successfully.");

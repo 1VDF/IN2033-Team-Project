@@ -9,17 +9,37 @@ package boxoffice.database;
  * @author Denis Volocaru
  * @version 1.0
  */
-public interface DBConnection{
+//public interface DBConnection{
+//    /**
+//     * This is the url used to connect to the database(MySQL).
+//     */
+//    String url = "jdbc:mysql://sst-stuproj.city.ac.uk:3306/in2033t25";
+//
+//    /**
+//     * This is the username used to connect to the database(MySQL).
+//     */
+//    String user = "in2033t25_a";
+//    /**
+//     * This is the password used to connect to the database(MySQL).
+//     */
+//    String pass = "UpCB1Q2vA4I";
+//}
+
+
+public interface DBConnection {
     /**
-     * This is the url used to connect to the database(MySQL).
+     * URL for local phpMyAdmin MySQL database.
      */
-    String url = "jdbc:mysql://sst-stuproj.city.ac.uk:3306/in2033t25";
+    String url = "jdbc:mysql://localhost:3306/in2033t25";
+
     /**
-     * This is the username used to connect to the database(MySQL).
+     * Username for local MySQL database (default is 'root').
      */
-    String user = "in2033t25_a";
+    String user = "root";
+
     /**
-     * This is the password used to connect to the database(MySQL).
+     * Password for local MySQL database (default is empty).
      */
-    String pass = "UpCB1Q2vA4I";
+    String pass = "";
 }
+

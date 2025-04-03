@@ -1,7 +1,7 @@
 package boxoffice.ui;
 
 import boxoffice.BoxOfficeManager;
-import boxoffice.models.Ticket;
+import boxoffice.database.TicketSale;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -17,17 +17,17 @@ public class GuestCheckInPage extends VBox {
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
         title.setStyle("-fx-text-fill: #333333;");
 
-        // Ticket code input
-        Label ticketCodeLabel = new Label("Enter Ticket ID / Barcode:");
+        // Ticket ID input
+        Label ticketCodeLabel = new Label("Enter Ticket ID:");
         TextField ticketCodeField = new TextField();
-        ticketCodeField.setPromptText("Ticket ID / Barcode");
+        ticketCodeField.setPromptText("Ticket ID");
 
         Button checkInButton = new Button("Check-In Ticket");
         checkInButton.setOnAction(e -> {
-            String ticketCode = ticketCodeField.getText();
-            Ticket ticket = boxOfficeManager.getTicketByCode(ticketCode);
-            if (ticket != null) {
-                System.out.println("Ticket Checked-In: " + ticket.getTicketCode());
+            String ticketId = ticketCodeField.getText(); // Using Ticket ID instead of code
+            TicketSale ticketSale = boxOfficeManager.getTicketById(ticketId); // Use getTicketById method
+            if (ticketSale != null) {
+                System.out.println("Ticket Checked-In: " + ticketSale.getTicketSaleId());
             } else {
                 System.out.println("Ticket Not Found.");
             }
