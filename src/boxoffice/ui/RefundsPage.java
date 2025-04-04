@@ -2,8 +2,8 @@ package boxoffice.ui;
 
 import boxoffice.BoxOfficeManager;
 import boxoffice.database.*;
-import boxoffice.models.RefundRepository;
-import boxoffice.models.TicketSaleRepository;
+import boxoffice.models.*;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -11,81 +11,232 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
-
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class RefundsPage extends VBox {
-
     private final BoxOfficeManager boxOfficeManager;
-    private final TextField searchField;
-    private final Button searchButton;
-    private final Button refundButton;
-    private final TableView<TicketSale> ticketTable;
-    private final ObservableList<TicketSale> ticketData;
-    private final Label ticketInfoLabel;
-    private final TextArea reasonField;
-    private final ComboBox<String> refundTypeComboBox;
-    private final TextField refundAmountField;
+
+    // UI Components
+    private final DatePicker datePicker = new DatePicker(LocalDate.now());
+    private final Button dateNextButton = new Button("Next");
+    private final ComboBox<Performance> performanceComboBox = new ComboBox<>();
+    private final Button performanceNextButton = new Button("Next");
+    private final TextField customerSearchField = new TextField();
+    private final Button searchButton = new Button("Search");
+    private final TableView<TicketSale> ticketTable = new TableView<>();
+    private final ObservableList<TicketSale> ticketData = FXCollections.observableArrayList();
+    private final Button refundButton = new Button("Process Refund");
+    private final TextArea reasonField = new TextArea();
+    private final ComboBox<String> refundTypeComboBox = new ComboBox<>();
+    private final TextField refundAmountField = new TextField();
+
+    // TitledPanes
+    private final TitledPane dateTitledPane;
+    private final TitledPane performanceTitledPane;
+    private final TitledPane customerTitledPane;
+    private final TitledPane ticketsTitledPane;
+    private final TitledPane refundTitledPane;
+
     private TicketSale selectedTicket;
+    private Performance selectedPerformance;
 
     public RefundsPage(BoxOfficeManager boxOfficeManager) {
         this.boxOfficeManager = boxOfficeManager;
+        System.setProperty("javafx.accessibility.force", "false");
 
+        setupDateSelection();
+        setupPerformanceSelection();
+        setupCustomerSearch();
+        setupTicketTable();
+        setupRefundDetails();
+
+        // Create titled panes
+        dateTitledPane = new TitledPane("1. Select Date", createDateBox());
+        performanceTitledPane = new TitledPane("2. Select Performance", createPerformanceBox());
+        customerTitledPane = new TitledPane("3. Search Customer", createCustomerSearchBox());
+        ticketsTitledPane = new TitledPane("Ticket Sales", ticketTable);
+        refundTitledPane = new TitledPane("Refund Details", createRefundBox());
+
+        // Set initial visibility
+        performanceTitledPane.setVisible(false);
+        customerTitledPane.setVisible(false);
+        ticketsTitledPane.setVisible(false);
+        refundTitledPane.setVisible(false);
+
+        // Add authorization status label
+        Label authStatus = new Label();
+        authStatus.setStyle("-fx-font-weight: bold;");
+        if (boxOfficeManager.isManager()) {
+            authStatus.setText("Logged in as: " + boxOfficeManager.getCurrentStaff().getRole());
+            authStatus.setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
+        } else {
+            authStatus.setText("Unauthorized - Only Managers can process refunds");
+            authStatus.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        }
+
+        // Set up main layout
         this.setSpacing(15);
         this.setPadding(new Insets(20));
-        this.setStyle("-fx-background-color: #f4f4f4; -fx-border-radius: 8; -fx-border-width: 1; -fx-border-color: #ccc;");
+        this.getChildren().addAll(
+                authStatus,
+                dateTitledPane,
+                performanceTitledPane,
+                customerTitledPane,
+                ticketsTitledPane,
+                refundTitledPane
+        );
+    }
 
-        searchField = new TextField();
-        searchField.setPromptText("Enter Ticket Sale ID");
-        searchField.setPrefWidth(200);
+    private void setupDateSelection() {
+        datePicker.setValue(LocalDate.now());
+        datePicker.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                if (empty || date == null) {
+                    setText(null);
+                } else {
+                    setText(String.valueOf(date.getDayOfMonth()));
+                }
+            }
+        });
+        dateNextButton.setOnAction(e -> loadPerformancesForDate());
+    }
 
-        searchButton = new Button("Search");
-        searchButton.setOnAction(e -> searchTicketById());
+    private HBox createDateBox() {
+        HBox dateBox = new HBox(10, new Label("Select Date:"), datePicker, dateNextButton);
+        dateBox.setAlignment(Pos.CENTER_LEFT);
+        return dateBox;
+    }
 
-        refundButton = new Button("Process Refund");
+    private void setupPerformanceSelection() {
+        performanceComboBox.setPromptText("Select Performance");
+        performanceComboBox.setPrefWidth(300);
+        performanceNextButton.setDisable(true);
+        performanceNextButton.setOnAction(e -> showCustomerSearch());
+
+        performanceComboBox.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Performance performance, boolean empty) {
+                super.updateItem(performance, empty);
+                setText(empty || performance == null ? null : performance.getDisplayText());
+            }
+        });
+
+        performanceComboBox.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Performance performance, boolean empty) {
+                super.updateItem(performance, empty);
+                setText(empty || performance == null ? null : performance.getDisplayText());
+            }
+        });
+
+        performanceComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            performanceNextButton.setDisable(newVal == null);
+            selectedPerformance = newVal;
+        });
+    }
+
+    private HBox createPerformanceBox() {
+        HBox performanceBox = new HBox(10, new Label("Select Performance:"), performanceComboBox, performanceNextButton);
+        performanceBox.setAlignment(Pos.CENTER_LEFT);
+        return performanceBox;
+    }
+
+    private void setupCustomerSearch() {
+        customerSearchField.setPromptText("Enter Customer Name");
+        searchButton.setOnAction(e -> searchTickets());
+    }
+
+    private HBox createCustomerSearchBox() {
+        HBox customerSearchBox = new HBox(10, new Label("Customer Name:"), customerSearchField, searchButton);
+        customerSearchBox.setAlignment(Pos.CENTER_LEFT);
+        return customerSearchBox;
+    }
+
+    private void setupTicketTable() {
+        setupTable();
+        ticketTable.setItems(ticketData);
+        ticketTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            selectedTicket = newSelection;
+            if (newSelection != null) {
+                handleRefundTypeChange();
+                refundButton.setDisable(!boxOfficeManager.isManager());
+            } else {
+                refundButton.setDisable(true);
+            }
+        });
+    }
+
+    private void setupTable() {
+        TableColumn<TicketSale, Integer> idColumn = new TableColumn<>("Ticket ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("ticketSaleId"));
+
+        TableColumn<TicketSale, String> customerNameColumn = new TableColumn<>("Customer");
+        customerNameColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getCustomerName()));
+
+        TableColumn<TicketSale, String> performanceColumn = new TableColumn<>("Performance");
+        performanceColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(selectedPerformance != null ?
+                        selectedPerformance.getTitle() : "Unknown"));
+
+        TableColumn<TicketSale, Double> priceColumn = new TableColumn<>("Price");
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        priceColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double price, boolean empty) {
+                super.updateItem(price, empty);
+                setText(empty || price == null ? null : String.format("£%.2f", price));
+            }
+        });
+
+        TableColumn<TicketSale, String> seatColumn = new TableColumn<>("Seat");
+        seatColumn.setCellValueFactory(new PropertyValueFactory<>("seatID"));
+
+        TableColumn<TicketSale, String> saleDateColumn = new TableColumn<>("Sale Date");
+        saleDateColumn.setCellValueFactory(cellData -> {
+            try {
+                Timestamp timestamp = TicketSaleRepository.getSaleTimestamp(cellData.getValue().getTicketSaleId());
+                return new SimpleStringProperty(timestamp != null ?
+                        timestamp.toLocalDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) : "Unknown");
+            } catch (SQLException e) {
+                return new SimpleStringProperty("Error");
+            }
+        });
+
+        ticketTable.getColumns().addAll(
+                idColumn, customerNameColumn, performanceColumn,
+                priceColumn, seatColumn, saleDateColumn
+        );
+    }
+
+    private void setupRefundDetails() {
         refundButton.setDisable(true);
         refundButton.setStyle("-fx-background-color: #ff5733; -fx-text-fill: white;");
         refundButton.setOnAction(e -> processRefund());
 
-        ticketInfoLabel = new Label("No ticket selected");
-        ticketInfoLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        if (!boxOfficeManager.isManager()) {
+            refundButton.setTooltip(new Tooltip("Only Managers can process refunds"));
+        }
 
-        reasonField = new TextArea();
         reasonField.setPromptText("Enter refund reason...");
         reasonField.setPrefRowCount(3);
         reasonField.setWrapText(true);
 
-        refundTypeComboBox = new ComboBox<>();
         refundTypeComboBox.getItems().addAll("Full", "Partial");
         refundTypeComboBox.setValue("Full");
         refundTypeComboBox.setOnAction(e -> handleRefundTypeChange());
 
-        refundAmountField = new TextField();
         refundAmountField.setPromptText("Enter refund amount");
         refundAmountField.setDisable(true);
+    }
 
-        ticketTable = new TableView<>();
-        setupTable();
-        ticketData = FXCollections.observableArrayList();
-        ticketTable.setItems(ticketData);
-
-        ticketTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                selectedTicket = newSelection;
-                updateTicketInfo(newSelection);
-                refundButton.setDisable(false);
-                handleRefundTypeChange();
-            } else {
-                ticketInfoLabel.setText("No ticket selected");
-                refundButton.setDisable(true);
-                selectedTicket = null;
-            }
-        });
-
-        HBox searchBox = new HBox(10, new Label("Ticket Sale ID:"), searchField, searchButton);
-        searchBox.setAlignment(Pos.CENTER_LEFT);
-
+    private VBox createRefundBox() {
         VBox refundBox = new VBox(10,
                 new Label("Refund Type:"),
                 refundTypeComboBox,
@@ -97,75 +248,64 @@ public class RefundsPage extends VBox {
         );
         refundBox.setPadding(new Insets(10));
         refundBox.setStyle("-fx-background-color: white; -fx-border-radius: 8; -fx-padding: 15;");
-
-        this.getChildren().addAll(
-                searchBox,
-                ticketInfoLabel,
-                new TitledPane("Ticket Sales", ticketTable),
-                new TitledPane("Refund Details", refundBox)
-        );
+        return refundBox;
     }
 
-    private void setupTable() {
-        TableColumn<TicketSale, Integer> idColumn = new TableColumn<>("Ticket ID");
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("ticketSaleId"));
-        idColumn.setMinWidth(120);
-
-        TableColumn<TicketSale, String> customerIdColumn = new TableColumn<>("Customer ID");
-        customerIdColumn.setCellValueFactory(new PropertyValueFactory<>("customerID"));
-        customerIdColumn.setMinWidth(120);
-
-        TableColumn<TicketSale, String> customerNameColumn = new TableColumn<>("Customer Name");
-        customerNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerName"));
-        customerNameColumn.setMinWidth(180);
-
-        TableColumn<TicketSale, String> performanceTitleColumn = new TableColumn<>("Performance");
-        performanceTitleColumn.setCellValueFactory(new PropertyValueFactory<>("performanceTitle"));
-        performanceTitleColumn.setMinWidth(200);
-
-        TableColumn<TicketSale, Double> priceColumn = new TableColumn<>("Price");
-        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
-        priceColumn.setMinWidth(100);
-
-        TableColumn<TicketSale, String> seatColumn = new TableColumn<>("Seat");
-        seatColumn.setCellValueFactory(new PropertyValueFactory<>("seatID"));
-        seatColumn.setMinWidth(100);
-
-        ticketTable.getColumns().addAll(idColumn, customerIdColumn, customerNameColumn,
-                performanceTitleColumn, priceColumn, seatColumn);
-    }
-
-    private void searchTicketById() {
-        String searchTerm = searchField.getText().trim();
-        if (!searchTerm.isEmpty()) {
+    private void loadPerformancesForDate() {
+        LocalDate selectedDate = datePicker.getValue();
+        if (selectedDate != null) {
             try {
-                TicketSale ticket = TicketSaleRepository.getTicketSaleById(searchTerm);
-                if (ticket != null) {
-                    ticketData.clear();
-                    ticketData.add(ticket);
-                } else {
-                    showAlert(Alert.AlertType.ERROR, "Ticket Not Found", "No ticket found with ID " + searchTerm);
-                }
+                List<Performance> performances = PerformanceRepository.getPerformancesByDate(selectedDate);
+                performanceComboBox.setItems(FXCollections.observableArrayList(performances));
+
+                performanceTitledPane.setVisible(true);
+                performanceTitledPane.setExpanded(true);
+                customerTitledPane.setVisible(false);
+                ticketsTitledPane.setVisible(false);
+                refundTitledPane.setVisible(false);
+
+                performanceComboBox.getSelectionModel().clearSelection();
+                customerSearchField.clear();
+                ticketData.clear();
             } catch (SQLException ex) {
-                showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + ex.getMessage());
+                showAlert("Error Loading Performances", ex.getMessage(), false);
             }
         }
     }
 
-    private void updateTicketInfo(TicketSale ticket) {
-        ticketInfoLabel.setText("Ticket ID: " + ticket.getTicketSaleId() +
-                " | Customer: " + ticket.getCustomerName() +
-                " | Performance: " + ticket.getPerformanceTitle() +
-                " | Seat: " + ticket.getSeatID());
+    private void showCustomerSearch() {
+        customerTitledPane.setVisible(true);
+        customerTitledPane.setExpanded(true);
+        ticketsTitledPane.setVisible(false);
+        refundTitledPane.setVisible(false);
+    }
+
+    private void searchTickets() {
+        String customerName = customerSearchField.getText().trim();
+        if (selectedPerformance != null && !customerName.isEmpty()) {
+            try {
+                List<TicketSale> tickets = TicketSaleRepository.getTicketsForRefund(
+                        selectedPerformance.getPerformanceId(),
+                        customerName
+                );
+
+                ticketData.setAll(tickets);
+                ticketsTitledPane.setVisible(true);
+                ticketsTitledPane.setExpanded(true);
+                refundTitledPane.setVisible(true);
+            } catch (SQLException ex) {
+                showAlert("Error Searching Tickets", ex.getMessage(), false);
+            }
+        }
     }
 
     private void handleRefundTypeChange() {
         if (selectedTicket != null) {
             String refundType = refundTypeComboBox.getValue();
             if ("Full".equals(refundType)) {
-                refundAmountField.setText(String.valueOf(selectedTicket.getPrice()));
+                refundAmountField.setText(String.format("%.2f", selectedTicket.getPrice()));
                 refundAmountField.setDisable(true);
-            } else if ("Partial".equals(refundType)) {
+            } else {
                 refundAmountField.setDisable(false);
                 refundAmountField.clear();
             }
@@ -173,53 +313,83 @@ public class RefundsPage extends VBox {
     }
 
     private void processRefund() {
+        if (!boxOfficeManager.isManager()) {
+            showAlert("Access Denied", "Only Managers and Deputy Managers can process refunds.", false);
+            return;
+        }
+
         if (selectedTicket == null) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Please select a ticket.");
+            showAlert("Error", "No ticket selected", false);
             return;
         }
 
         String reason = reasonField.getText().trim();
-        String refundType = refundTypeComboBox.getValue();
-        double refundAmount;
-
         if (reason.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Please provide a refund reason.");
+            showAlert("Error", "Please enter a refund reason", false);
             return;
         }
 
         try {
-            refundAmount = refundType.equals("Full") ? selectedTicket.getPrice() : Double.parseDouble(refundAmountField.getText().trim());
-            if (refundAmount <= 0 || refundAmount > selectedTicket.getPrice()) {
-                showAlert(Alert.AlertType.ERROR, "Invalid Amount", "Partial refund must be a valid value.");
-                return;
-            }
-        } catch (NumberFormatException ex) {
-            showAlert(Alert.AlertType.ERROR, "Invalid Amount", "Please enter a valid numeric value.");
-            return;
-        }
+            double refundAmount = "Full".equals(refundTypeComboBox.getValue()) ?
+                    selectedTicket.getPrice() :
+                    validateRefundAmount();
 
-        Refund refund = new Refund(0, LocalDate.now(), refundAmount, reason, "Processing",
-                selectedTicket.getTicketSaleId(), boxOfficeManager.getCurrentStaff().getStaffId());
+            Refund refund = new Refund(
+                    0,
+                    LocalDate.now(),
+                    refundAmount,
+                    reason,
+                    "Done",
+                    selectedTicket.getTicketSaleId(),
+                    boxOfficeManager.getCurrentStaff().getStaffId()
+            );
 
-        try {
             if (RefundRepository.addRefund(refund)) {
                 TicketSaleRepository.markAsRefunded(selectedTicket.getTicketSaleId());
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Refund processed successfully.");
+                showAlert("Success", "Refund processed successfully", true);
                 ticketData.remove(selectedTicket);
+                selectedTicket = null;
+                refundButton.setDisable(true);
+                reasonField.clear();
+                refundAmountField.clear();
+                refundTypeComboBox.setValue("Full");
             } else {
-                showAlert(Alert.AlertType.ERROR, "Error", "Failed to process refund.");
+                showAlert("Error", "Failed to process refund", false);
             }
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Invalid refund amount format", false);
+        } catch (IllegalArgumentException e) {
+            showAlert("Error", e.getMessage(), false);
         } catch (SQLException ex) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Database error: " + ex.getMessage());
+            showAlert("Error", "Database error: " + ex.getMessage(), false);
         }
     }
 
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
+    private double validateRefundAmount() throws IllegalArgumentException {
+        try {
+            double amount = Double.parseDouble(refundAmountField.getText().trim());
+            if (amount <= 0 || amount > selectedTicket.getPrice()) {
+                throw new IllegalArgumentException("Refund amount must be between £0.01 and £" +
+                        String.format("%.2f", selectedTicket.getPrice()));
+            }
+            return amount;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Please enter a valid number for refund amount");
+        }
+    }
+
+    private void showAlert(String title, String message, boolean isSuccess) {
+        Alert alert = new Alert(isSuccess ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+
+        if (isSuccess) {
+            alert.getDialogPane().setStyle("-fx-background-color: #e8f5e9;");
+        } else {
+            alert.getDialogPane().setStyle("-fx-background-color: #ffebee;");
+        }
+
         alert.showAndWait();
     }
 }
-

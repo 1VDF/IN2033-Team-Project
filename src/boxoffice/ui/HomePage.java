@@ -1,4 +1,3 @@
-
 package boxoffice.ui;
 
 import boxoffice.BoxOfficeManager;
@@ -42,7 +41,12 @@ public class HomePage extends VBox {
         Button ticketSalesButton = createStyledButton("Ticket Sales", () -> showTicketSalesPage());
         Button guestCheckinButton = createStyledButton("Guest Check-in", () -> showGuestCheckinPage());
         Button groupBookingButton = createStyledButton("Group Booking", () -> showGroupBookingsPage());
-        Button refundsButton = createStyledButton("Refunds", () -> showRefundsPage());
+
+        Button refundsButton = createStyledButton("Refunds", () -> showRefundsPage(), !boxOfficeManager.isManager());
+        if (!boxOfficeManager.isManager()) {
+            refundsButton.setTooltip(new Tooltip("Only Managers can access refunds"));
+        }
+
         Button reportsButton = createStyledButton("Reports", () -> showReportsPage());
 
         buttonLayout.getChildren().addAll(ticketSalesButton, guestCheckinButton, groupBookingButton, refundsButton, reportsButton);
@@ -115,17 +119,15 @@ public class HomePage extends VBox {
         durationColumn.setPrefWidth(110);
 
         TableColumn<Performance, String> venueColumn = new TableColumn<>("Venue");
-        venueColumn.setCellValueFactory(cellData -> cellData.getValue().venueNameProperty()); // Ensure this exists in `Performance.java`
+        venueColumn.setCellValueFactory(cellData -> cellData.getValue().venueNameProperty());
         venueColumn.setMinWidth(110);
         venueColumn.setPrefWidth(110);
 
-        // New column for Description
         TableColumn<Performance, String> descriptionColumn = new TableColumn<>("Description");
-        descriptionColumn.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty()); // Assuming you have descriptionProperty in Performance class
+        descriptionColumn.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
         descriptionColumn.setMinWidth(150);
         descriptionColumn.setPrefWidth(332);
 
-        // Add columns to the table
         tableView.getColumns().addAll(nameColumn, dateColumn, timeColumn, durationColumn, venueColumn, descriptionColumn);
 
         try {
@@ -158,13 +160,35 @@ public class HomePage extends VBox {
         return button;
     }
 
+    private Button createStyledButton(String buttonText, Runnable action, boolean isDisabled) {
+        Button button = createStyledButton(buttonText, action);
+
+        if (isDisabled) {
+            button.setStyle("-fx-font-size: 18px; -fx-padding: 30px; " +
+                    "-fx-background-color: white; " +
+                    "-fx-text-fill: #2C3E50; " +
+                    "-fx-font-weight: bold; " +
+                    "-fx-background-radius: 50%; " +
+                    "-fx-border-color: #2C3E50; " +
+                    "-fx-border-radius: 50%; " +
+                    "-fx-border-width: 2px;");
+
+            button.setOnMouseEntered(null);
+            button.setOnMouseExited(null);
+
+            button.setOnAction(null);
+        }
+
+        return button;
+    }
+
+
     private Button createStyledBottomButton(String buttonText, String imagePath) {
         Button button = new Button(buttonText);
 
-        // Create an ImageView for the icon
         Image image = new Image(imagePath);
         ImageView imageView = new ImageView(image);
-        imageView.setFitHeight(40);  // Increase icon size
+        imageView.setFitHeight(40);
         imageView.setFitWidth(40);
 
         button.setGraphic(imageView);

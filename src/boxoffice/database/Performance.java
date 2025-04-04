@@ -4,6 +4,7 @@ import javafx.beans.property.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class Performance {
 
@@ -51,7 +52,7 @@ public class Performance {
     public String getStartTime() { return startTime.get(); }
     public int getDurationMinutes() { return durationMinutes.get(); }
     public int getVenueID() { return venueID.get(); }
-    public String getVenueName() { return venueName.get(); } // Get Venue Name
+    public String getVenueName() { return venueName.get(); }
 
     // Standard Setters
     public void setPerformanceId(int performanceId) { this.performanceId.set(performanceId); }
@@ -62,6 +63,17 @@ public class Performance {
     public void setStartTime(String startTime) { this.startTime.set(startTime); }
     public void setDurationMinutes(int durationMinutes) { this.durationMinutes.set(durationMinutes); }
     public void setVenueName(String venueName) { this.venueName.set(venueName); }
+
+    public String getDisplayText() {
+        try {
+            LocalTime time = LocalTime.parse(this.getStartTime());
+            return String.format("%s (%s)",
+                    this.getTitle(),
+                    time.format(DateTimeFormatter.ofPattern("HH:mm")));
+        } catch (Exception e) {
+            return this.getTitle();
+        }
+    }
 
     @Override
     public String toString() {

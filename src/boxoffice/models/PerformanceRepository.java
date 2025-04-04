@@ -4,6 +4,7 @@ import boxoffice.database.DBConnection;
 import boxoffice.database.Performance;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,6 +110,37 @@ public class PerformanceRepository {
             }
         }
         return null;
+    }
+
+    public static List<Performance> getPerformancesByDate(LocalDate date) throws SQLException {
+        List<Performance> performances = new ArrayList<>();
+        String query = "SELECT p.*, v.name as venue_name FROM performance p " +
+                "JOIN venue v ON p.venue_id = v.venue_id " +
+                "WHERE p.date = ? " +
+                "ORDER BY p.start_time";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setDate(1, Date.valueOf(date));
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Performance performance = new Performance(
+                        rs.getInt("performance_id"),
+                        rs.getString("title"),
+                        rs.getString("performance_type"),
+                        rs.getString("description"),
+                        rs.getDate("date").toLocalDate(),
+                        rs.getTime("start_time").toLocalTime(),
+                        rs.getInt("duration_minutes"),
+                        rs.getInt("venue_id"),
+                        rs.getString("venue_name")
+                );
+                performances.add(performance);
+            }
+        }
+        return performances;
     }
 
 }

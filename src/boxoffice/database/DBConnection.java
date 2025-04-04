@@ -30,7 +30,7 @@ public interface DBConnection {
     /**
      * URL for local phpMyAdmin MySQL database.
      */
-    String url = "jdbc:mysql://localhost:3306/in2033t25";
+    String url = "jdbc:mysql://localhost:3306/in2033t25.2";
 
     /**
      * Username for local MySQL database (default is 'root').

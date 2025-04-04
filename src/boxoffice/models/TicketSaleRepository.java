@@ -1,9 +1,11 @@
 package boxoffice.models;
 
 import boxoffice.database.DBConnection;
+import boxoffice.database.Performance;
 import boxoffice.database.TicketSale;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -52,7 +54,7 @@ public class TicketSaleRepository {
         try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, ticketSaleId); // Use String parameter since ticketSaleId is a String
+            stmt.setString(1, ticketSaleId);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -62,8 +64,8 @@ public class TicketSaleRepository {
                         rs.getString("customer_id"),
                         rs.getInt("performance_id"),
                         rs.getString("seat_id"),
-                        rs.getInt("discount_id"),  // Keeping discount_id if it's needed
-                        rs.getInt("group_id"), // Fixing to group_id
+                        rs.getInt("discount_id"),
+                        rs.getInt("group_id"),
                         rs.getInt("staff_id")
                 );
             }
@@ -159,4 +161,49 @@ public class TicketSaleRepository {
 
         return refundableTickets;
     }
+
+    public static List<TicketSale> getTicketsForRefund(int performanceId, String customerName) throws SQLException {
+        List<TicketSale> tickets = new ArrayList<>();
+        String query = "SELECT ts.* FROM ticket_sale ts " +
+                "JOIN customer c ON ts.customer_id = c.customer_id " +
+                "WHERE ts.performance_id = ? " +
+                "AND c.customer_name LIKE ? " +
+                "AND ts.refunded = 0";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, performanceId);
+            stmt.setString(2, "%" + customerName + "%");
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                TicketSale ticket = new TicketSale(
+                        rs.getInt("ticket_sale_id"),
+                        rs.getDouble("price"),
+                        rs.getString("customer_id"),
+                        rs.getInt("performance_id"),
+                        rs.getString("seat_id"),
+                        rs.getInt("discount_id"),
+                        rs.getInt("group_id"),
+                        rs.getInt("staff_id")
+                );
+                tickets.add(ticket);
+            }
+        }
+        return tickets;
+    }
+
+    public static Timestamp getSaleTimestamp(int ticketSaleId) throws SQLException {
+        String query = "SELECT sale_date FROM ticket_sale WHERE ticket_sale_id = ?";
+        try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, ticketSaleId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() ? rs.getTimestamp("sale_date") : null;
+        }
+    }
+
+
+
 }
