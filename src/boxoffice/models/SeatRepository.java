@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Set;
 
 public class SeatRepository {
-    private final String Select_Statement = "Select * FROM `seat`";
-
 
     private static List<Seat> readSeatColumns(ResultSet rs) throws SQLException{
         List<Seat> seats = new ArrayList<>();
@@ -44,6 +42,16 @@ public class SeatRepository {
                 accessibleSeatIDs.add(rs.getString("seat_id"));
             }
             return accessibleSeatIDs;
+        }
+    }
+
+    public static List<Seat> getAllSeatsFromMainHall() throws SQLException {
+        try (Connection connection = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
+             Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+                     ResultSet.CONCUR_READ_ONLY)) {
+            String Select_Statement = "Select * FROM `seat`";
+            ResultSet rs = statement.executeQuery(Select_Statement);
+            return readSeatColumns(rs);
         }
     }
 }

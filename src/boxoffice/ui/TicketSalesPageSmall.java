@@ -22,6 +22,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -34,16 +35,19 @@ import java.util.stream.Collectors;
 
 import static java.sql.Types.NULL;
 
-public class TicketSalesPage extends VBox {
+public class TicketSalesPageSmall extends VBox {
     private Performance selectedPerformance;
     private ObservableList<Seat> selectedSeats = FXCollections.observableArrayList();
     private final Set<String> bookedSeatIds = new HashSet<>();
     private List<String> accesibleSeatIDs = SeatRepository.getAccessibleSeatIDs();
     private final int maxSeatsSelectable = 11;
 
-    public TicketSalesPage(Performance performance) throws SQLException {
+    public TicketSalesPageSmall(Performance performance) throws SQLException {
         this.selectedPerformance = performance;
         initializeUI();
+    }
+
+    public TicketSalesPageSmall() throws SQLException {
     }
 
     public void initializeUI(){
@@ -59,21 +63,6 @@ public class TicketSalesPage extends VBox {
             Pane buttonPane = new Pane();
             buttonPane.setPrefSize(getWidth(), getHeight());
 
-            // Create balcony seats (top rows)
-            createCCBalconySeats(buttonPane);
-
-            createBBBalconySeatsV1(buttonPane);
-            createBBBalconySeatsV2(buttonPane);
-            createBBBalconySeatsV3(buttonPane);
-
-            createAABalconySeatsV1(buttonPane);
-            createAABalconySeatsV2(buttonPane);
-            createAABalconySeatsV3(buttonPane);
-
-            // Create stalls seats (from your image)
-            createStallsSeatsRowQ(buttonPane);
-            createStallsSeatsRowP(buttonPane);
-            createStallsSeatsRowO(buttonPane);
             createStallsSeatsRowN(buttonPane);
             createStallsSeatsRowM(buttonPane);
             createStallsSeatsRowL(buttonPane);
@@ -88,54 +77,75 @@ public class TicketSalesPage extends VBox {
             createStallsSeatsRowB(buttonPane);
             createStallsSeatsRowA(buttonPane);
 
-            Rectangle stallsBorder = new Rectangle();
-            stallsBorder.setFill(Color.TRANSPARENT);
-            stallsBorder.setStroke(Color.BLACK);
-            stallsBorder.setStrokeWidth(2);
-            stallsBorder.setWidth(670);
-            stallsBorder.setHeight(530);
-            stallsBorder.setMouseTransparent(true);
-            stallsBorder.setX(150);
-            stallsBorder.setY(110);
 
-            Label stallsLabelLeft = new Label("STALLS");
-            stallsLabelLeft.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-            stallsLabelLeft.setLayoutX(200);
-            stallsLabelLeft.setLayoutY(125);
-
-            Label stallsLabelRight = new Label("STALLS");
-            stallsLabelRight.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-            stallsLabelRight.setLayoutX(700);
-            stallsLabelRight.setLayoutY(125);
-
-            Label balconyLabelUpper = new Label("BALCONY");
-            balconyLabelUpper.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-            balconyLabelUpper.setLayoutX(450);
-            balconyLabelUpper.setLayoutY(-10);
-
-            Label balconyLabelLeft = new Label("BALCONY");
-            balconyLabelLeft.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-            balconyLabelLeft.setLayoutX(10);
-            balconyLabelLeft.setLayoutY(160);
-            balconyLabelLeft.setRotate(270);
-
-            Label balconyLabelRight = new Label("BALCONY");
-            balconyLabelRight.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-            balconyLabelRight.setLayoutX(885);
-            balconyLabelRight.setLayoutY(160);
-            balconyLabelRight.setRotate(90);
-
-            Rectangle stageRect = new Rectangle(200, 50);
+            Rectangle stageRect = new Rectangle(400, 70);
             stageRect.setFill(Color.LIGHTGRAY);
             stageRect.setStroke(Color.BLACK);
             stageRect.setStrokeWidth(2);
-            stageRect.setX(380);
-            stageRect.setY(620);
+            stageRect.setX(245);
+            stageRect.setY(550);
 
             Label stageLabel = new Label("STAGE");
-            stageLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-            stageLabel.setLayoutX(455);
-            stageLabel.setLayoutY(630);
+            stageLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 21px;");
+            stageLabel.setLayoutX(410);
+            stageLabel.setLayoutY(570);
+
+            Line leftWall = new Line(245,550,245,100);
+            Line leftWallStairs = new Line(345,437,345,100);
+            Line rightWallLower = new Line(645,550,645,408);
+            Line rightWallLower2 = new Line(645,408,612,408);
+            Line rightWall = new Line(612,408,612,100);
+            Line upperWall = new Line(612,100,330,100);
+            Line upperWall2 = new Line(245,100,255,100);
+
+            Line greySeatLine = new Line(345,438,645,438);
+            greySeatLine.setStroke(Color.GRAY);
+
+            Line greySeatLine2 = new Line(345,408,612,408);
+            greySeatLine2.setStroke(Color.GRAY);
+
+            Line greySeatLine3 = new Line(345,378,612,378);
+            greySeatLine3.setStroke(Color.GRAY);
+
+            Line greySeatLine4 = new Line(345,348,612,348);
+            greySeatLine4.setStroke(Color.GRAY);
+
+            Line greySeatLine5 = new Line(345,318,612,318);
+            greySeatLine5.setStroke(Color.GRAY);
+
+            Line greySeatLine6 = new Line(345,288,612,288);
+            greySeatLine6.setStroke(Color.GRAY);
+
+            Line greySeatLine7 = new Line(345,258,612,258);
+            greySeatLine7.setStroke(Color.GRAY);
+
+            Line greySeatLine8 = new Line(345,228,612,228);
+            greySeatLine8.setStroke(Color.GRAY);
+
+            Line greySeatLine9 = new Line(345,198,612,198);
+            greySeatLine9.setStroke(Color.GRAY);
+
+            Line greySeatLine10 = new Line(345,168,612,168);
+            greySeatLine10.setStroke(Color.GRAY);
+
+            Line greySeatLine11 = new Line(345,138,522,138);
+            greySeatLine11.setStroke(Color.GRAY);
+
+            Label soundLabel = new Label("SOUND");
+            soundLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+            soundLabel.setLayoutX(540);
+            soundLabel.setLayoutY(110);
+
+            Label deskLabel = new Label("DESK");
+            deskLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+            deskLabel.setLayoutX(546);
+            deskLabel.setLayoutY(130);
+
+            Label aisleLabel = new Label("AISLE");
+            aisleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;");
+            aisleLabel.setLayoutX(270);
+            aisleLabel.setLayoutY(320);
+            aisleLabel.setRotate(270);
 
             Button confirmButton = new Button("Confirm Selection");
             confirmButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20;");
@@ -144,8 +154,12 @@ public class TicketSalesPage extends VBox {
             confirmButton.setLayoutY(680);
 
             // Combine the image and buttons
-            Pane seatingPlanPane = new Pane(buttonPane,stallsBorder,stallsLabelLeft,stallsLabelRight,
-                    balconyLabelUpper, balconyLabelLeft, balconyLabelRight,stageRect,stageLabel,confirmButton);
+            Pane seatingPlanPane = new Pane(buttonPane,stageRect, stageLabel,leftWall,leftWallStairs,
+                    rightWallLower,rightWallLower2,rightWall,upperWall,upperWall2,greySeatLine,greySeatLine2,
+                    greySeatLine3,greySeatLine4,greySeatLine5,greySeatLine6,greySeatLine7,
+                    greySeatLine8,greySeatLine9,greySeatLine10,greySeatLine11,
+                    soundLabel,deskLabel,aisleLabel,confirmButton);
+
             setMargin(seatingPlanPane,new Insets(40,0,0,100));
 
 
@@ -174,369 +188,10 @@ public class TicketSalesPage extends VBox {
         }
     }
 
-    private void createCCBalconySeats(Pane pane) {
-        // Balcony seats (Cc 1-8)
-        double startX = 375; // Adjust these values based on your actual image
-        double startY = 20;
-        double seatWidth = 30;
-        double seatHeight = 5;
-        double gap = 0;
-
-        Label label = new Label("CC");
-        label.setLayoutX(startX - 20);
-        label.setLayoutY(startY + 5);
-        pane.getChildren().add(label);
-
-        // Create Cc 1-8 seats
-        for (int i = 1; i <= 8; i++) {
-            Button seat = new Button("" + i);
-            seat.setUserData("CC " + i);
-            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
-            seat.setLayoutY(startY);
-            seat.setPrefSize(seatWidth, seatHeight);
-            seat.setOnAction(e -> handleSeatSelection(seat));
-
-            // Single point for click handling
-            if (bookedSeatIds.contains("MHCC" + i)) {
-                seat.setStyle("-fx-background-color: #ff0000;"); // Red
-                seat.setOpacity(1);
-                seat.setDisable(true);
-            } else {
-                seat.setStyle("-fx-background-color: #cccccc;");// Gray;
-                seat.setDisable(false);
-            }
-
-            pane.getChildren().add(seat);
-        }
-    }
-
-    private void createBBBalconySeatsV1(Pane pane) {
-        // Balcony seats (BB 6 - 23)
-        double startX = 60; // Adjust these values based on your actual image
-        double startY = 220;
-        double seatWidth = 30;
-        double seatHeight = 25;
-        double gap = 0;
-
-        Label label = new Label("BB");
-        label.setLayoutX(startX + 7);
-        label.setLayoutY(startY - 140);
-        pane.getChildren().add(label);
-
-        // Create Cc 1-8 seats
-        for (int i = 1; i <= 5; i++) {
-            Button seat = new Button("" + i);
-            seat.setUserData("BB " + i);
-            seat.setLayoutX(startX);
-            seat.setLayoutY(startY - (i - 1) * (seatHeight + gap));
-            seat.setPrefSize(seatWidth, seatHeight);
-            seat.setOnAction(e -> handleSeatSelection(seat));
-
-            if (bookedSeatIds.contains("MHBB" + i)){
-                seat.setStyle("-fx-background-color: #ff0000;"); // Red
-                seat.setOpacity(1);
-                seat.setDisable(true);
-            } else {
-                seat.setStyle("-fx-background-color: #cccccc;");// Gray;
-                seat.setDisable(false);
-            }
-
-            pane.getChildren().add(seat);
-        }
-    }
-
-    private void createBBBalconySeatsV2(Pane pane){
-        // Balcony seats (BB 6 - 23)
-        double startX = 75; // Adjust these values based on your actual image
-        double startY = 45;
-        double seatWidth = 30;
-        double seatHeight = 5;
-        double gap = 0;
-
-        Label label = new Label("BB");
-        label.setLayoutX(startX + 130);
-        label.setLayoutY(startY + 5);
-        pane.getChildren().add(label);
-
-        // Create Cc 1-8 seats
-        for (int i = 6; i <= 23; i++) {
-            Button seat = new Button("" + i);
-            seat.setUserData("BB " + i);
-            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
-            seat.setLayoutY(startY);
-            seat.setPrefSize(seatWidth, seatHeight);
-            seat.setOnAction(e -> handleSeatSelection(seat));
-
-            if (bookedSeatIds.contains("MHBB" + i)){
-                seat.setStyle("-fx-background-color: #ff0000;"); // Red
-                seat.setOpacity(1);
-                seat.setDisable(true);
-            } else {
-                seat.setStyle("-fx-background-color: #cccccc;");// Gray;
-                seat.setDisable(false);
-            }
-
-            pane.getChildren().add(seat);
-        }
-    }
-
-    private void createBBBalconySeatsV3(Pane pane) {
-        // Balcony seats (BB 6 - 23)
-        double startX = 880; // Adjust these values based on your actual image
-        double startY = -460;
-        double seatWidth = 30;
-        double seatHeight = 25;
-        double gap = 0;
-
-        Label label = new Label("BB");
-        label.setLayoutX(startX + 7);
-        label.setLayoutY(startY + 560);
-        pane.getChildren().add(label);
-
-        // Create Cc 1-8 seats
-        for (int i = 24; i <= 28; i++) {
-            Button seat = new Button("" + i);
-            seat.setUserData("BB " + i);
-            seat.setLayoutX(startX);
-            seat.setLayoutY(startY + (i - 1) * (seatHeight + gap));
-            seat.setPrefSize(seatWidth, seatHeight);
-            seat.setOnAction(e -> handleSeatSelection(seat));
-
-            if (bookedSeatIds.contains("MHBB" + i)){
-                seat.setStyle("-fx-background-color: #ff0000;"); // Red
-                seat.setOpacity(1);
-                seat.setDisable(true);
-            } else {
-                seat.setStyle("-fx-background-color: #cccccc;");// Gray;
-                seat.setDisable(false);
-            }
-
-            pane.getChildren().add(seat);
-        }
-    }
-
-    private void createAABalconySeatsV1(Pane pane) {
-        // Balcony seats (BB 6 - 23)
-        double startX = 100; // Adjust these values based on your actual image
-        double startY = 560;
-        double seatWidth = 30;
-        double seatHeight = 25;
-        double gap = 0;
-
-        Label label = new Label("AA");
-        label.setLayoutX(startX + 7);
-        label.setLayoutY(startY - 490);
-        pane.getChildren().add(label);
-
-        // Create Cc 1-8 seats
-        for (int i = 1; i <= 20; i++) {
-            Button seat = new Button("" + i);
-            seat.setUserData("AA " + i);
-            seat.setLayoutX(startX);
-            seat.setLayoutY(startY - (i - 1) * (seatHeight + gap));
-            seat.setPrefSize(seatWidth, seatHeight);
-            seat.setOnAction(e -> handleSeatSelection(seat));
-
-            if (bookedSeatIds.contains("MHAA" + i)){
-                seat.setStyle("-fx-background-color: #ff0000;"); // Red
-                seat.setOpacity(1);
-                seat.setDisable(true);
-            } else {
-                seat.setStyle("-fx-background-color: #cccccc;");// Gray;
-                seat.setDisable(false);
-            }
-
-            pane.getChildren().add(seat);
-        }
-    }
-
-    private void createAABalconySeatsV2(Pane pane){
-        // Balcony seats (AA 21 - 33)
-        double startX = -300; // Adjust these values based on your actual image
-        double startY = 70;
-        double seatWidth = 30;
-        double seatHeight = 5;
-        double gap = 0;
-
-        Label label = new Label("AA");
-        label.setLayoutX(startX + 575);
-        label.setLayoutY(startY + 5);
-        pane.getChildren().add(label);
-
-        // Create Cc 1-8 seats
-        for (int i = 21; i <= 33; i++) {
-            Button seat = new Button("" + i);
-            seat.setUserData("AA " + i);
-            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
-            seat.setLayoutY(startY);
-            seat.setPrefSize(seatWidth, seatHeight);
-            seat.setOnAction(e -> handleSeatSelection(seat));
-
-            if (bookedSeatIds.contains("MHAA" + i)){
-                seat.setStyle("-fx-background-color: #ff0000;"); // Red
-                seat.setOpacity(1);
-                seat.setDisable(true);
-            } else {
-                seat.setStyle("-fx-background-color: #cccccc;");// Gray;
-                seat.setDisable(false);
-            }
-
-            pane.getChildren().add(seat);
-        }
-    }
-
-    private void createAABalconySeatsV3(Pane pane) {
-        // Balcony seats (BB 6 - 23)
-        double startX = 840; // Adjust these values based on your actual image
-        double startY = -735;
-        double seatWidth = 30;
-        double seatHeight = 25;
-        double gap = 0;
-
-        Label label = new Label("AA");
-        label.setLayoutX(startX + 7);
-        label.setLayoutY(startY + 810);
-        pane.getChildren().add(label);
-
-        // Create Cc 1-8 seats
-        for (int i = 34; i <= 53; i++) {
-            Button seat = new Button("" + i);
-            seat.setUserData("AA " + i);
-            seat.setLayoutX(startX);
-            seat.setLayoutY(startY + (i - 1) * (seatHeight + gap));
-            seat.setPrefSize(seatWidth, seatHeight);
-            seat.setOnAction(e -> handleSeatSelection(seat));
-
-            if (bookedSeatIds.contains("MHAA" + i)){
-                seat.setStyle("-fx-background-color: #ff0000;"); // Red
-                seat.setOpacity(1);
-                seat.setDisable(true);
-            } else {
-                seat.setStyle("-fx-background-color: #cccccc;");// Gray;
-                seat.setDisable(false);
-            }
-            pane.getChildren().add(seat);
-        }
-    }
-
-    private void createStallsSeatsRowQ(Pane pane) {
-        // (Stall seats - Row Q)
-        double startX = 340; // Adjust these values based on your actual image
-        double startY = 120;
-        double seatWidth = 30;
-        double seatHeight = 5;
-        double gap = 0;
-
-        Label label = new Label("Q");
-        label.setLayoutX(startX - 20);
-        label.setLayoutY(startY + 5);
-        pane.getChildren().add(label);
-
-        // Create Cc 1-8 seats
-        for (int i = 1; i <= 10; i++) {
-            Button seat = new Button("" + i);
-            seat.setUserData("Q " + i);
-            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
-            seat.setLayoutY(startY);
-            seat.setPrefSize(seatWidth, seatHeight);
-            seat.setOnAction(e -> handleSeatSelection(seat));
-
-            if (bookedSeatIds.contains("MHQ" + i)){
-                seat.setStyle("-fx-background-color: #ff0000;"); // Red
-                seat.setOpacity(1);
-                seat.setDisable(true);
-            } else {
-                seat.setStyle("-fx-background-color: #cccccc;");// Gray;
-                seat.setDisable(false);
-
-                if(i == 1 || i == 10){
-                    seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
-                }
-            }
-            pane.getChildren().add(seat);
-        }
-    }
-
-    private void createStallsSeatsRowP(Pane pane) {
-        // (Stall seats - Row P)
-        double startX = 330; // Adjust these values based on your actual image
-        double startY = 150;
-        double seatWidth = 30;
-        double seatHeight = 5;
-        double gap = 0;
-
-        Label label = new Label("P");
-        label.setLayoutX(startX - 20);
-        label.setLayoutY(startY + 5);
-        pane.getChildren().add(label);
-
-        // Create Cc 1-8 seats
-        for (int i = 1; i <= 11; i++) {
-            Button seat = new Button("" + i);
-            seat.setUserData("P " + i);
-            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
-            seat.setLayoutY(startY);
-            seat.setPrefSize(seatWidth, seatHeight);
-            seat.setOnAction(e -> handleSeatSelection(seat));
-            if (bookedSeatIds.contains("MHP" + i)){
-                seat.setStyle("-fx-background-color: #ff0000;"); // Red
-                seat.setOpacity(1);
-                seat.setDisable(true);
-            } else {
-                seat.setStyle("-fx-background-color: #cccccc;");// Gray;
-                seat.setDisable(false);
-
-                if(i == 1 || i == 11){
-                    seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
-                }
-            }
-            pane.getChildren().add(seat);
-
-        }
-    }
-
-    private void createStallsSeatsRowO(Pane pane) {
-        // (Stall seats - Row O)
-        double startX = 180; // Adjust these values based on your actual image
-        double startY = 180;
-        double seatWidth = 30;
-        double seatHeight = 5;
-        double gap = 0;
-
-        Label label = new Label("O");
-        label.setLayoutX(startX - 20);
-        label.setLayoutY(startY + 5);
-        pane.getChildren().add(label);
-
-        // Create Cc 1-8 seats
-        for (int i = 1; i <= 20; i++) {
-            Button seat = new Button("" + i);
-            seat.setUserData("O " + i);
-            seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
-            seat.setLayoutY(startY);
-            seat.setPrefSize(seatWidth, seatHeight);
-            seat.setOnAction(e -> handleSeatSelection(seat));
-
-            if (bookedSeatIds.contains("MHO" + i)){
-                seat.setStyle("-fx-background-color: #ff0000;"); // Red
-                seat.setOpacity(1);
-                seat.setDisable(true);
-            } else {
-                seat.setStyle("-fx-background-color: #cccccc;");// Gray;
-                seat.setDisable(false);
-
-                if(i == 1 || i == 20){
-                    seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
-                }
-            }
-            pane.getChildren().add(seat);
-        }
-    }
-
     private void createStallsSeatsRowN(Pane pane) {
         // (Stall seats - Row Q)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 210;
+        double startX = 370; // Adjust these values based on your actual image
+        double startY = 110;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -547,7 +202,7 @@ public class TicketSalesPage extends VBox {
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 4; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("N " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -555,7 +210,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHN" + i)){
+            if (bookedSeatIds.contains("SHN" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -573,8 +228,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowM(Pane pane) {
         // (Stall seats - Row M)
-        double startX = 240; // Adjust these values based on your actual image
-        double startY = 240;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 140;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -585,7 +240,7 @@ public class TicketSalesPage extends VBox {
         pane.getChildren().add(label);
 
 
-        for (int i = 1; i <= 16; i++) {
+        for (int i = 1; i <= 4; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("M " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -593,7 +248,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHM" + i)){
+            if (bookedSeatIds.contains("SHM" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -601,7 +256,7 @@ public class TicketSalesPage extends VBox {
                 seat.setStyle("-fx-background-color: #cccccc;");// Gray;
                 seat.setDisable(false);
 
-                if(i == 1 || i == 16){
+                if(i == 1){
                     seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
                 }
             }
@@ -611,8 +266,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowL(Pane pane) {
         // (Stall seats - Row L)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 270;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 170;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -622,8 +277,7 @@ public class TicketSalesPage extends VBox {
         label.setLayoutY(startY + 5);
         pane.getChildren().add(label);
 
-        // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 7; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("L " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -631,13 +285,17 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHL" + i)){
+            if (bookedSeatIds.contains("SHL" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
             } else {
-                seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
+                seat.setStyle("-fx-background-color: #cccccc;"); // Default color is green
                 seat.setDisable(false);
+
+                if(i == 1){
+                    seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
+                }
             }
             pane.getChildren().add(seat);
         }
@@ -645,8 +303,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowK(Pane pane) {
         // (Stall seats - Row L)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 300;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 200;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -657,7 +315,7 @@ public class TicketSalesPage extends VBox {
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 7; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("K " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -665,7 +323,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHK" + i)){
+            if (bookedSeatIds.contains("SHK" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -673,7 +331,7 @@ public class TicketSalesPage extends VBox {
                 seat.setStyle("-fx-background-color: #cccccc;");// Gray;
                 seat.setDisable(false);
 
-                if(i == 1 || i == 19){
+                if(i == 1){
                     seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
                 }
             }
@@ -683,8 +341,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowJ(Pane pane) {
         // (Stall seats - Row L)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 330;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 230;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -695,7 +353,7 @@ public class TicketSalesPage extends VBox {
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 7; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("J " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -703,7 +361,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHJ" + i)){
+            if (bookedSeatIds.contains("SHJ" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -711,7 +369,7 @@ public class TicketSalesPage extends VBox {
                 seat.setStyle("-fx-background-color: #cccccc;");// Gray;
                 seat.setDisable(false);
 
-                if(i == 1 || i == 19){
+                if(i == 1){
                     seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
                 }
             }
@@ -721,8 +379,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowH(Pane pane) {
         // (Stall seats - Row L)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 360;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 260;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -733,7 +391,7 @@ public class TicketSalesPage extends VBox {
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 7; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("H " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -741,7 +399,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHH" + i)){
+            if (bookedSeatIds.contains("SHH" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -749,7 +407,7 @@ public class TicketSalesPage extends VBox {
                 seat.setStyle("-fx-background-color: #cccccc;");// Gray;
                 seat.setDisable(false);
 
-                if(i == 1 || i == 19){
+                if(i == 1){
                     seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
                 }
             }
@@ -761,8 +419,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowG(Pane pane) {
         // (Stall seats - Row L)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 390;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 290;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -775,7 +433,7 @@ public class TicketSalesPage extends VBox {
         //temp for starting value
 
         // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 7; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("G " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -783,7 +441,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth,seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHG" + i)){
+            if (bookedSeatIds.contains("SHG" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -791,7 +449,7 @@ public class TicketSalesPage extends VBox {
                 seat.setStyle("-fx-background-color: #cccccc;");// Gray;
                 seat.setDisable(false);
 
-                if(i == 1 || i == 19){
+                if(i == 1){
                     seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
                 }
             }
@@ -801,8 +459,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowF(Pane pane) {
         // (Stall seats - Row L)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 420;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 320;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -813,7 +471,7 @@ public class TicketSalesPage extends VBox {
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 7; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("F " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -821,7 +479,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHF" + i)){
+            if (bookedSeatIds.contains("SHF" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -829,7 +487,7 @@ public class TicketSalesPage extends VBox {
                 seat.setStyle("-fx-background-color: #cccccc;");// Gray;
                 seat.setDisable(false);
 
-                if(i == 1 || i == 19){
+                if(i == 1){
                     seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
                 }
             }
@@ -839,8 +497,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowE(Pane pane) {
         // (Stall seats - Row L)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 450;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 350;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -851,7 +509,7 @@ public class TicketSalesPage extends VBox {
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 7; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("E " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -859,7 +517,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHE" + i)){
+            if (bookedSeatIds.contains("SHE" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -867,7 +525,7 @@ public class TicketSalesPage extends VBox {
                 seat.setStyle("-fx-background-color: #cccccc;");// Gray;
                 seat.setDisable(false);
 
-                if(i == 1 || i == 19){
+                if(i == 1){
                     seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
                 }
             }
@@ -877,8 +535,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowD(Pane pane) {
         // (Stall seats - Row L)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 480;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 380;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -889,7 +547,7 @@ public class TicketSalesPage extends VBox {
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 7; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("D " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -897,7 +555,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHD" + i)){
+            if (bookedSeatIds.contains("SHD" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -905,7 +563,7 @@ public class TicketSalesPage extends VBox {
                 seat.setStyle("-fx-background-color: #cccccc;");// Gray;
                 seat.setDisable(false);
 
-                if(i == 1 || i == 19){
+                if(i == 1){
                     seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
                 }
             }
@@ -915,8 +573,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowC(Pane pane) {
         // (Stall seats - Row L)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 510;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 410;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -927,7 +585,7 @@ public class TicketSalesPage extends VBox {
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 8; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("C " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -935,7 +593,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHC" + i)){
+            if (bookedSeatIds.contains("SHC" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -943,7 +601,7 @@ public class TicketSalesPage extends VBox {
                 seat.setStyle("-fx-background-color: #cccccc;");// Gray;
                 seat.setDisable(false);
 
-                if(i == 1 || i == 19){
+                if(i == 1){
                     seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
                 }
             }
@@ -953,8 +611,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowB(Pane pane) {
         // (Stall seats - Row L)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 540;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 440;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -965,7 +623,7 @@ public class TicketSalesPage extends VBox {
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 8; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("B " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -973,7 +631,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
             seat.setOnAction(e -> handleSeatSelection(seat));
 
-            if (bookedSeatIds.contains("MHB" + i)){
+            if (bookedSeatIds.contains("SHB" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -981,7 +639,7 @@ public class TicketSalesPage extends VBox {
                 seat.setStyle("-fx-background-color: #cccccc;");// Gray;
                 seat.setDisable(false);
 
-                if(i == 1 || i == 19){
+                if(i == 1){
                     seat.setStyle("-fx-background-color: #067bc4;"); // Default color is green
                 }
             }
@@ -991,8 +649,8 @@ public class TicketSalesPage extends VBox {
 
     private void createStallsSeatsRowA(Pane pane) {
         // (Stall seats - Row L)
-        double startX = 200; // Adjust these values based on your actual image
-        double startY = 570;
+        double startX = 400; // Adjust these values based on your actual image
+        double startY = 470;
         double seatWidth = 30;
         double seatHeight = 5;
         double gap = 0;
@@ -1003,7 +661,7 @@ public class TicketSalesPage extends VBox {
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
-        for (int i = 1; i <= 19; i++) {
+        for (int i = 1; i <= 8; i++) {
             Button seat = new Button("" + i);
             seat.setUserData("A " + i);
             seat.setLayoutX(startX + (i-1) * (seatWidth + gap));
@@ -1011,7 +669,7 @@ public class TicketSalesPage extends VBox {
             seat.setPrefSize(seatWidth, seatHeight);
 
             seat.setOnAction(e -> handleSeatSelection(seat));
-            if (bookedSeatIds.contains("MHA" + i)){
+            if (bookedSeatIds.contains("SHA" + i)){
                 seat.setStyle("-fx-background-color: #ff0000;"); // Red
                 seat.setOpacity(1);
                 seat.setDisable(true);
@@ -1030,7 +688,7 @@ public class TicketSalesPage extends VBox {
             if (parts.length == 2) {
                 String row = parts[0];
                 int seatNumber = Integer.parseInt(parts[1]);
-                String seatId = "MH" + row + seatNumber;
+                String seatId = "SH" + row + seatNumber;
 
                 // Check if already selected
                 boolean isSelected = selectedSeats.stream()
@@ -1130,15 +788,13 @@ public class TicketSalesPage extends VBox {
 
     private String getAdjacentSeatId(String seatId, List<Seat> allSeats) {
         try {
-            String prefix = seatId.substring(0, 2); // "MH"
-            String rowAndNumber = seatId.substring(2); // "A1" or "AA1"
+            String prefix = seatId.substring(0, 2);
+            String rowAndNumber = seatId.substring(2);
 
-            // Separate row letters from seat number
             String row = rowAndNumber.replaceAll("\\d+", "");
             String numberStr = rowAndNumber.substring(row.length());
             int number = Integer.parseInt(numberStr);
 
-            // Try forward adjacent seat first (higher number)
             String forwardSeatId = prefix + row + (number + 1);
             boolean forwardExists = allSeats.stream()
                     .anyMatch(s -> s.getSeatID().equals(forwardSeatId));
@@ -1167,8 +823,8 @@ public class TicketSalesPage extends VBox {
 
     private String findAvailableAdjacentSeat(String seatId, List<Seat> allSeats, Set<String> bookedSeatIds, List<Seat> currentlySelectedSeats) {
         try {
-            String prefix = seatId.substring(0, 2); // "MH"
-            String rowAndNumber = seatId.substring(2); // "A1" or "AA1"
+            String prefix = seatId.substring(0, 2);
+            String rowAndNumber = seatId.substring(2);
 
             // Separate row letters from seat number
             String row = rowAndNumber.replaceAll("\\d+", "");
@@ -1301,30 +957,15 @@ public class TicketSalesPage extends VBox {
     private List<Seat> getAllSeatsInVenue() {
         List<Seat> allSeats = new ArrayList<>();
 
-        // Balcony Seats - CC
-        for (int i = 1; i <= 8; i++) {
-            allSeats.add(new Seat("MHCC" + i, "CC", i, accesibleSeatIDs.contains("MHCC" + i)));
-        }
-
-        // Balcony Seats - BB
-        for (int i = 1; i <= 28; i++) {
-            allSeats.add(new Seat("MHBB" + i, "BB", i, accesibleSeatIDs.contains("MHBB" + i)));
-        }
-
-        // Balcony Seats - AA
-        for (int i = 1; i <= 53; i++) {
-            allSeats.add(new Seat("MHAA" + i, "AA", i, accesibleSeatIDs.contains("MHAA" + i)));
-        }
-
         // Stalls Seats - Rows Q to A
-        String[] rows = {"Q", "P", "O", "N", "M", "L", "K", "J", "H", "G", "F", "E", "D", "C", "B", "A"};
-        int[] counts = {10, 11, 20, 19, 16, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19};
+        String[] rows = {"N", "M", "L", "K", "J", "H", "G", "F", "E", "D", "C", "B", "A"};
+        int[] counts = {4, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8};
 
         for (int r = 0; r < rows.length; r++) {
             String row = rows[r];
             int count = counts[r];
             for (int i = 1; i <= count; i++) {
-                String seatId = "MH" + row + i;
+                String seatId = "SH" + row + i;
                 allSeats.add(new Seat(seatId, row, i, accesibleSeatIDs.contains(seatId)));
             }
         }

@@ -5,8 +5,9 @@ public class Seat {
     private String rowNumber;
     private int seatNumber;
     private boolean isAccesible;
-
     private boolean isBooked;
+
+    // Add these methods:
 
     // Constructor
     public Seat(String seatID, String rowNumber, int seatNumber,boolean isAccessible) {

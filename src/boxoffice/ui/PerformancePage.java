@@ -23,7 +23,6 @@ public class PerformancePage extends VBox {
     private final PerformanceRepository performanceRepository;
 
     private   ObservableList<Performance> performances;
-    // Callback for when "Book a ticket" is clicked
 
     public PerformancePage() {
         this.performanceRepository = new PerformanceRepository();
@@ -79,13 +78,24 @@ public class PerformancePage extends VBox {
             bookTicketButton.setOnAction(event -> {
                 Performance selected = table.getSelectionModel().getSelectedItem();
                 if (selected != null) {
-                    TicketSalesPage ticketSalesPage = null; // Make sure selected is passed
-                    try {
-                        ticketSalesPage = new TicketSalesPage(selected);
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
+                    if(selected.getVenueID() == 1) {
+                        TicketSalesPage ticketSalesPage = null; // Make sure selected is passed
+                        try {
+                            ticketSalesPage = new TicketSalesPage(selected);
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                        this.getScene().setRoot(ticketSalesPage);
                     }
-                    this.getScene().setRoot(ticketSalesPage);
+                    else{
+                        TicketSalesPageSmall ticketSalesPageSmall = null;
+                        try {
+                            ticketSalesPageSmall = new TicketSalesPageSmall(selected);
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                        this.getScene().setRoot(ticketSalesPageSmall);
+                    }
                 } else {
                     new Alert(Alert.AlertType.WARNING, "Please select a performance first").showAndWait();
                 }
