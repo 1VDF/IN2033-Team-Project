@@ -1,7 +1,11 @@
+
+
 package boxoffice.database;
 
+import boxoffice.models.CustomerRepository;
+import boxoffice.models.PerformanceRepository;
 
-import static java.sql.Types.NULL;
+import java.sql.SQLException;
 
 public class TicketSale {
     private int ticketSaleId;
@@ -35,65 +39,59 @@ public class TicketSale {
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
 
-    public int getPerformanceID() {
-        return performanceID;
+    public int getPerformanceID() { return performanceID; }
+    public void setPerformanceID(int performanceID) { this.performanceID = performanceID; }
+
+    public String getSeatID() { return seatID; }
+    public void setSeatID(String seatID) { this.seatID = seatID; }
+
+    public int getDiscountID() { return discountID; }
+    public void setDiscountID(int discountID) { this.discountID = discountID; }
+
+    public int getGroupBookingID() { return groupBookingID; }
+    public void setGroupBookingID(int groupBookingID) { this.groupBookingID = groupBookingID; }
+
+    public int getStaffID() { return staffID; }
+    public void setStaffID(int staffID) { this.staffID = staffID; }
+
+    public String getCustomerID() { return customerID; }
+    public void setCustomerID(String customerID) { this.customerID = customerID; }
+
+    // Fetch Customer Name
+    public String getCustomerName() {
+        try {
+            Customer customer = CustomerRepository.getCustomerById(this.customerID);
+            return (customer != null) ? customer.getCustomerName() : "Unknown";
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Unknown";
+        }
     }
 
-    public void setPerformanceID(int performanceID) {
-        this.performanceID = performanceID;
-    }
-
-    public String getSeatID() {
-        return seatID;
-    }
-
-    public void setSeatID(String seatID) {
-        this.seatID = seatID;
-    }
-
-    public int getDiscountID() {
-        return discountID;
-    }
-
-    public void setDiscountID(int discountID) {
-        this.discountID = discountID;
-    }
-
-    public int getGroupBookingID() {
-        return groupBookingID;
-    }
-
-    public void setGroupBookingID(int groupBookingID) {
-        this.groupBookingID = groupBookingID;
-    }
-
-    public int getStaffID() {
-        return staffID;
-    }
-
-    public void setStaffID(int staffID) {
-        this.staffID = staffID;
-    }
-
-    public String getCustomerID() {
-        return customerID;
-    }
-
-    public void setCustomerID(String customerID) {
-        this.customerID = customerID;
+    // Fetch Performance Title
+    public String getPerformanceTitle() {
+        try {
+            Performance performance = PerformanceRepository.getPerformanceById(this.performanceID);
+            return (performance != null) ? performance.getTitle() : "Unknown";
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Unknown";
+        }
     }
 
     @Override
     public String toString() {
-        return "entity.ticket_sale{" +
-                "ticket_sale_id=" + ticketSaleId +
+        return "TicketSale{" +
+                "ticketSaleId=" + ticketSaleId +
                 ", price=" + price +
-                ", customer_id=" + customerID +
-                ", performance_id=" + performanceID +
-                ", seat_id=" + seatID +
-                ", discount_id=" + discountID +
-                ", group_id=" + groupBookingID +
-                ", staff_id=" + staffID +
+                ", customerId=" + customerID +
+                ", performanceId=" + performanceID +
+                ", seatId=" + seatID +
+                ", discountId=" + discountID +
+                ", groupId=" + groupBookingID +
+                ", staffId=" + staffID +
                 '}';
     }
 }
+
+

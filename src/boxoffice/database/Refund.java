@@ -1,6 +1,6 @@
+
 package boxoffice.database;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Refund {
@@ -58,14 +58,15 @@ public class Refund {
 
     @Override
     public String toString() {
-        return "entity.refund{" +
-                "refund_id=" + refundId +
+        return "Refund{" +
+                "refundId=" + refundId +
                 ", date=" + date +
-                ", refund_amount=" + refundAmount +
-                ", refund_reason='" + refundReason + '\'' +
-                ", refund_status='" + refundStatus + '\'' +
-                ", ticket_sale_id=" + ticketSaleID +
-                ", staff_id=" + staffID +
+                ", refundAmount=" + refundAmount +
+                ", refundReason='" + refundReason + '\'' +
+                ", refundStatus='" + refundStatus + '\'' +
+                ", ticketSaleID=" + ticketSaleID +
+                ", staffID=" + staffID +
                 '}';
     }
 }
+

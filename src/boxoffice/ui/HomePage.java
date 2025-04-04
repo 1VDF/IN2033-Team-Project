@@ -1,252 +1,208 @@
+
 package boxoffice.ui;
 
 import boxoffice.BoxOfficeManager;
-import boxoffice.models.Performance;
+import boxoffice.database.Performance;
+import boxoffice.models.PerformanceRepository;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.TextAlignment;
-import javafx.stage.Stage;
+import javafx.scene.text.Text;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.Priority;
 
-import java.io.*;
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
 
 public class HomePage extends VBox {
 
     private final BoxOfficeManager boxOfficeManager;
+    private final PerformanceRepository performanceRepository;
 
     public HomePage(BoxOfficeManager boxOfficeManager) {
         this.boxOfficeManager = boxOfficeManager;
+        this.performanceRepository = new PerformanceRepository();
 
-        // Title for the HomePage
+        // Page Title
         Text title = new Text("Box Office System");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 30));
         title.setFill(Color.web("#2C3E50"));
 
+        Region topButtonSpacer = new Region();
+        VBox.setVgrow(topButtonSpacer, Priority.ALWAYS);
+
         HBox buttonLayout = new HBox(30);
         buttonLayout.setAlignment(Pos.CENTER);
 
-        // Button for Ticket Sales
-        Button ticketSalesButton = createStyledButton("Ticket Sales");
-        ticketSalesButton.setOnAction(e -> showTicketSalesPage());
+        Button ticketSalesButton = createStyledButton("Ticket Sales", () -> showTicketSalesPage());
+        Button guestCheckinButton = createStyledButton("Guest Check-in", () -> showGuestCheckinPage());
+        Button groupBookingButton = createStyledButton("Group Booking", () -> showGroupBookingsPage());
+        Button refundsButton = createStyledButton("Refunds", () -> showRefundsPage());
+        Button reportsButton = createStyledButton("Reports", () -> showReportsPage());
 
-        // Button for Guest Check-in
-        Button guestCheckinButton = createStyledButton("Guest Check-in");
-        guestCheckinButton.setOnAction(e -> showGuestCheckinPage());
+        buttonLayout.getChildren().addAll(ticketSalesButton, guestCheckinButton, groupBookingButton, refundsButton, reportsButton);
 
-        // Button for Group Booking
-        Button groupBookingButton = createStyledButton("Group Booking");
-        groupBookingButton.setOnAction(e -> showGroupBookingsPage());
+        VBox layout = new VBox(30);
+        layout.setAlignment(Pos.TOP_CENTER);
+        layout.setStyle("-fx-background-color: #ECF0F1; -fx-padding: 20px;");
 
-        // Button for Refunds
-        Button refundsButton = createStyledButton("Refunds");
-        refundsButton.setOnAction(e -> showRefundsPage());
+        layout.setPrefHeight(800);
+        layout.getChildren().addAll(title, topButtonSpacer, buttonLayout);
 
-        // Button for Reports
-        Button reportsButton = createStyledButton("Reports");
-        reportsButton.setOnAction(e -> showReportsPage());
+        Region gapBetweenButtonsAndTable = new Region();
+        VBox.setVgrow(gapBetweenButtonsAndTable, Priority.ALWAYS);
 
-        buttonLayout.getChildren().addAll(
-                ticketSalesButton,
-                guestCheckinButton,
-                groupBookingButton,
-                refundsButton,
-                reportsButton
-        );
-
-        VBox layout = new VBox(40);
-        layout.setAlignment(Pos.CENTER);
-        layout.setStyle("-fx-background-color: #ECF0F1; -fx-padding: 40px;");
-
-
-        layout.getChildren().addAll(
-                title,
-                buttonLayout
-        );
-
-        // Loading upcoming performances from CSV file and displaying them
-        List<Performance> performances = loadPerformancesFromFile();
-        if (performances != null && !performances.isEmpty()) {
-            VBox performanceList = new VBox(10);
-            Text performanceTitle = new Text("Upcoming Performances");
-            performanceTitle.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-            performanceTitle.setFill(Color.web("#2C3E50"));
-            performanceList.getChildren().add(performanceTitle);
-
-            TableView<Performance> tableView = new TableView<>();
-            tableView.setPrefWidth(600);
-
-            // Columns for the TableView
-            TableColumn<Performance, String> nameColumn = new TableColumn<>("Performance Name");
-            nameColumn.setCellValueFactory(cellData -> cellData.getValue().performanceNameProperty());
-
-            TableColumn<Performance, String> dateColumn = new TableColumn<>("Date");
-            dateColumn.setCellValueFactory(cellData -> cellData.getValue().performanceDateProperty());
-
-            TableColumn<Performance, String> timeColumn = new TableColumn<>("Time");
-            timeColumn.setCellValueFactory(cellData -> cellData.getValue().performanceTimeProperty());
-
-            TableColumn<Performance, String> locationColumn = new TableColumn<>("Venue");
-            locationColumn.setCellValueFactory(cellData -> cellData.getValue().performanceLocationProperty());
-
-            tableView.getColumns().add(nameColumn);
-            tableView.getColumns().add(dateColumn);
-            tableView.getColumns().add(timeColumn);
-            tableView.getColumns().add(locationColumn);
-
-            tableView.getItems().addAll(performances);
-
-            // scrolling capability
-            ScrollPane scrollPane = new ScrollPane(tableView);
-            scrollPane.setFitToWidth(true);
-            scrollPane.setPrefHeight(200);
-
-            performanceList.getChildren().add(scrollPane);
-            layout.getChildren().add(performanceList);
-        }
-
-        HBox bottomButtons = new HBox(20);
-        bottomButtons.setStyle("-fx-padding: 20px 0px 0px 0px;");
-
-// Manage Users Button with Icon
-        Button manageUsersButton = createStyledBottomButton("Manage Users", "file:src/boxoffice/images/manage-users.png");
-        manageUsersButton.setMaxWidth(150);
-        manageUsersButton.setMinWidth(150);
-        manageUsersButton.setMaxHeight(50);
-        manageUsersButton.setContentDisplay(ContentDisplay.CENTER);
-
-// Logout Button with Icon
-        Button logoutButton = createStyledBottomButton("Logout", "file:src/boxoffice/images/logout.png");
-        logoutButton.setMaxWidth(150);
-        logoutButton.setMinWidth(150);
-        logoutButton.setMaxHeight(50);
-        logoutButton.setContentDisplay(ContentDisplay.CENTER);
+        layout.getChildren().add(gapBetweenButtonsAndTable);
+        layout.getChildren().add(getPerformanceTable());
 
         Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        bottomButtons.getChildren().addAll(
-                manageUsersButton,
-                spacer,
-                logoutButton
-        );
+        // Bottom Buttons: Manager User and Logout
+        HBox bottomButtons = new HBox(20);
+        bottomButtons.setStyle("-fx-padding: 20px 50px 20px 50px;");
+        bottomButtons.setAlignment(Pos.CENTER);
 
-// Adding bottomButtons to the layout
-        layout.getChildren().add(bottomButtons);
+        Button manageUsersButton = createStyledBottomButton("Manage Users", "file:src/boxoffice/images/manage-users.png");
+        Button logoutButton = createStyledBottomButton("Logout", "file:src/boxoffice/images/logout.png");
 
+        Region bottomSpacer = new Region();
+        HBox.setHgrow(bottomSpacer, Priority.ALWAYS);
+
+        bottomButtons.getChildren().addAll(manageUsersButton, bottomSpacer, logoutButton);
+
+        layout.getChildren().addAll(spacer, bottomButtons);
 
         this.getChildren().add(layout);
     }
 
-    // Helper method to create a stylish, round button with gradient and hover effect
-    private Button createStyledButton(String buttonText) {
-        Button button = new Button(buttonText);
+    private VBox getPerformanceTable() {
+        VBox performanceList = new VBox(10);
+        performanceList.setAlignment(Pos.CENTER);
 
-        // Set button style: gradient background, round corners, and other styling
-        button.setStyle("-fx-font-size: 16px; -fx-padding: 20px; -fx-background-color: linear-gradient(to right, #4CAF50, #81C784); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 50%;");
+        Text performanceTitle = new Text("Upcoming Performances");
+        performanceTitle.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        performanceTitle.setFill(Color.web("#2C3E50"));
 
-        button.setMinWidth(150);
-        button.setMinHeight(150);
-        button.setMaxWidth(150);
-        button.setMaxHeight(150);
-        button.setShape(new Circle(75));
+        TableView<Performance> tableView = new TableView<>();
+        tableView.setPrefWidth(750);
+        tableView.setMaxWidth(1000);
+        tableView.setPrefHeight(250);
 
-        // Hover effect to change button style on mouse enter
-        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-padding: 20px; -fx-background-color: linear-gradient(to right, #388E3C, #66BB6A); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 50%;"));
+        TableColumn<Performance, String> nameColumn = new TableColumn<>("Performance Name");
+        nameColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
+        nameColumn.setMinWidth(150);
+        nameColumn.setPrefWidth(225);
 
-        // Reset to original style on mouse exit
-        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-padding: 20px; -fx-background-color: linear-gradient(to right, #4CAF50, #81C784); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 50%;"));
+        TableColumn<Performance, String> dateColumn = new TableColumn<>("Date");
+        dateColumn.setCellValueFactory(cellData -> cellData.getValue().dateProperty());
+        dateColumn.setMinWidth(110);
+        dateColumn.setPrefWidth(110);
 
-        return button;
+        TableColumn<Performance, String> timeColumn = new TableColumn<>("Time");
+        timeColumn.setCellValueFactory(cellData -> cellData.getValue().startTimeProperty());
+        timeColumn.setMinWidth(110);
+        timeColumn.setPrefWidth(110);
+
+        TableColumn<Performance, String> durationColumn = new TableColumn<>("Duration (min)");
+        durationColumn.setCellValueFactory(cellData -> cellData.getValue().durationMinutesProperty().asString());
+        durationColumn.setMinWidth(110);
+        durationColumn.setPrefWidth(110);
+
+        TableColumn<Performance, String> venueColumn = new TableColumn<>("Venue");
+        venueColumn.setCellValueFactory(cellData -> cellData.getValue().venueNameProperty()); // Ensure this exists in `Performance.java`
+        venueColumn.setMinWidth(110);
+        venueColumn.setPrefWidth(110);
+
+        // New column for Description
+        TableColumn<Performance, String> descriptionColumn = new TableColumn<>("Description");
+        descriptionColumn.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty()); // Assuming you have descriptionProperty in Performance class
+        descriptionColumn.setMinWidth(150);
+        descriptionColumn.setPrefWidth(332);
+
+        // Add columns to the table
+        tableView.getColumns().addAll(nameColumn, dateColumn, timeColumn, durationColumn, venueColumn, descriptionColumn);
+
+        try {
+            List<Performance> performances = performanceRepository.getAllPerformances();
+            tableView.getItems().addAll(performances);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Label errorLabel = new Label("Error loading performances. Please try again.");
+            errorLabel.setTextFill(Color.RED);
+            performanceList.getChildren().add(errorLabel);
+        }
+
+        performanceList.getChildren().addAll(performanceTitle, tableView);
+        return performanceList;
     }
 
 
-    // Helper method to create bottom buttons (Manage Users and Logout) with icons
+    private Button createStyledButton(String buttonText, Runnable action) {
+        Button button = new Button(buttonText);
+        button.setStyle("-fx-font-size: 18px; -fx-padding: 30px; -fx-background-color: linear-gradient(to right, #4CAF50, #81C784); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 50%;");
+        button.setMinWidth(180);
+        button.setMinHeight(180);
+        button.setMaxWidth(180);
+        button.setMaxHeight(180);
+
+        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 18px; -fx-padding: 30px; -fx-background-color: linear-gradient(to right, #388E3C, #66BB6A); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 50%;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 18px; -fx-padding: 30px; -fx-background-color: linear-gradient(to right, #4CAF50, #81C784); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 50%;"));
+
+        button.setOnAction(e -> action.run());
+        return button;
+    }
+
     private Button createStyledBottomButton(String buttonText, String imagePath) {
         Button button = new Button(buttonText);
+
+        // Create an ImageView for the icon
         Image image = new Image(imagePath);
         ImageView imageView = new ImageView(image);
-        imageView.setFitHeight(30);
-        imageView.setFitWidth(30);
+        imageView.setFitHeight(40);  // Increase icon size
+        imageView.setFitWidth(40);
+
         button.setGraphic(imageView);
 
-        button.setStyle("-fx-font-size: 16px; -fx-padding: 10px 20px; -fx-background-color: linear-gradient(to right, #3498DB, #5DADE2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-alignment: center;");
-        // Hover effect to change button style on mouse enter
-        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-padding: 10px 20px; -fx-background-color: linear-gradient(to right, #2980B9, #5499C7); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-alignment: center;"));
-        // Reset to original style on mouse exit
-        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-padding: 10px 20px; -fx-background-color: linear-gradient(to right, #3498DB, #5DADE2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-alignment: center;"));
+        button.setStyle("-fx-font-size: 16px; -fx-padding: 15px 40px; -fx-background-color: linear-gradient(to right, #3498DB, #5DADE2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px;");
+
+        button.setMinWidth(180);
+        button.setMinHeight(70);
+        button.setMaxWidth(180);
+        button.setMaxHeight(70);
+
+        button.setAlignment(Pos.CENTER);
+        button.setContentDisplay(ContentDisplay.CENTER);
+
+        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-padding: 15px 40px; -fx-background-color: linear-gradient(to right, #2980B9, #5499C7); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-padding: 15px 40px; -fx-background-color: linear-gradient(to right, #3498DB, #5DADE2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px;"));
 
         return button;
     }
-
 
 
     private void showTicketSalesPage() {
-        PerformancePage performancePage = new PerformancePage();
-        this.getScene().setRoot(performancePage);
+        this.getScene().setRoot(new PerformancePage());
     }
 
     private void showGuestCheckinPage() {
-        GuestCheckInPage guestCheckinPage = new GuestCheckInPage(boxOfficeManager);
-        this.getScene().setRoot(guestCheckinPage);
+        this.getScene().setRoot(new GuestCheckInPage(boxOfficeManager));
     }
 
     private void showGroupBookingsPage() {
-        GroupBookingsPage groupBookingsPage = new GroupBookingsPage(boxOfficeManager);
-        this.getScene().setRoot(groupBookingsPage);
+        this.getScene().setRoot(new GroupBookingsPage(boxOfficeManager));
     }
 
     private void showRefundsPage() {
-        RefundsPage refundsPage = new RefundsPage(boxOfficeManager);
-        this.getScene().setRoot(refundsPage);
+        this.getScene().setRoot(new RefundsPage(boxOfficeManager));
     }
 
     private void showReportsPage() {
-        ReportsPage reportsPage = new ReportsPage(boxOfficeManager);
-        this.getScene().setRoot(reportsPage);
-    }
-
-    private void showManageUsersPage() {
-        // Navigate to the Manage Users page
-    }
-    private void logout() {
-        // Handle logout action
-    }
-
-    // Method to load performances from the CSV file
-    private List<Performance> loadPerformancesFromFile() {
-        List<Performance> performances = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader("src/boxoffice/data/performances.csv"))) {
-            String line;
-            br.readLine(); // Skip header line
-            while ((line = br.readLine()) != null) {
-                String[] details = line.split(",");
-                if (details.length == 4) {
-                    String name = details[0].replace("\"", "");
-                    String date = details[1].replace("\"", "");
-                    String time = details[2].replace("\"", "");
-                    String location = details[3].replace("\"", "");
-                    performances.add(new Performance(name, date, time, location));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return performances;
+        this.getScene().setRoot(new ReportsPage(boxOfficeManager));
     }
 }
-
-
-
-
-
-
-
