@@ -130,38 +130,6 @@ public class TicketSaleRepository {
         return bookedSeats;
     }
 
-    // Get refundable tickets (those without a refund record or with a processing refund)
-    public static List<TicketSale> getRefundableTickets() throws SQLException {
-        List<TicketSale> refundableTickets = new ArrayList<>();
-        String query =
-                "SELECT ts.* FROM ticket_sale ts " +
-                        "LEFT JOIN refund r ON ts.ticket_sale_id = r.ticket_sale_id " +
-                        "WHERE r.ticket_sale_id IS NULL " +
-                        "OR r.refund_status = 'Processing'";  // Including those with 'Processing' status
-
-        try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                TicketSale ticketSale = new TicketSale(
-                        rs.getInt("ticket_sale_id"),
-                        rs.getDouble("price"),
-                        rs.getString("customer_id"),
-                        rs.getInt("performance_id"),
-                        rs.getString("seat_id"),
-                        rs.getInt("discount_id"),
-                        rs.getInt("group_id"), // Fix to group_id
-                        rs.getInt("staff_id")
-                );
-                refundableTickets.add(ticketSale);
-            }
-        }
-
-        return refundableTickets;
-    }
-
     public static List<TicketSale> getTicketsForRefund(int performanceId, String customerName) throws SQLException {
         List<TicketSale> tickets = new ArrayList<>();
         String query = "SELECT ts.* FROM ticket_sale ts " +

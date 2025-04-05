@@ -36,7 +36,7 @@ public class LoginPage extends VBox {
 
     private void setupUI() {
         setSpacing(20);
-        setPadding(new Insets(-15, 40, 40, 40));
+        setPadding(new Insets(-10, 40, 40, 40));
         setAlignment(Pos.TOP_CENTER);
         setStyle("-fx-background-color: linear-gradient(to bottom right, #2c3e50, #3498db);");
         setPrefSize(500, 550);
@@ -51,9 +51,10 @@ public class LoginPage extends VBox {
         title.setFont(Font.font("Arial", FontWeight.BOLD, 22));
         title.setFill(Color.WHITE);
 
+
         VBox formContainer = new VBox(15);
         formContainer.setAlignment(Pos.CENTER);
-        formContainer.setPadding(new Insets(25, 40, 35, 40));
+        formContainer.setPadding(new Insets(40, 40, 35, 40));
         formContainer.setStyle("-fx-background-color: rgba(255,255,255,0.95); " +
                 "-fx-background-radius: 8; " +
                 "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 2, 2);");

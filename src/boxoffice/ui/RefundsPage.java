@@ -20,7 +20,6 @@ import java.util.List;
 public class RefundsPage extends VBox {
     private final BoxOfficeManager boxOfficeManager;
 
-    // UI Components
     private final DatePicker datePicker = new DatePicker(LocalDate.now());
     private final Button dateNextButton = new Button("Next");
     private final ComboBox<Performance> performanceComboBox = new ComboBox<>();
@@ -54,20 +53,17 @@ public class RefundsPage extends VBox {
         setupTicketTable();
         setupRefundDetails();
 
-        // Create titled panes
         dateTitledPane = new TitledPane("1. Select Date", createDateBox());
         performanceTitledPane = new TitledPane("2. Select Performance", createPerformanceBox());
         customerTitledPane = new TitledPane("3. Search Customer", createCustomerSearchBox());
         ticketsTitledPane = new TitledPane("Ticket Sales", ticketTable);
         refundTitledPane = new TitledPane("Refund Details", createRefundBox());
 
-        // Set initial visibility
         performanceTitledPane.setVisible(false);
         customerTitledPane.setVisible(false);
         ticketsTitledPane.setVisible(false);
         refundTitledPane.setVisible(false);
 
-        // Add authorization status label
         Label authStatus = new Label();
         authStatus.setStyle("-fx-font-weight: bold;");
         if (boxOfficeManager.isManager()) {
@@ -78,17 +74,20 @@ public class RefundsPage extends VBox {
             authStatus.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         }
 
-        // Set up main layout
-        this.setSpacing(15);
-        this.setPadding(new Insets(20));
+        HBox bottomBox = new HBox(createBackButton());
+        bottomBox.setAlignment(Pos.CENTER);
+        bottomBox.setPadding(new Insets(3, 0, 0, 0));
+
         this.getChildren().addAll(
                 authStatus,
                 dateTitledPane,
                 performanceTitledPane,
                 customerTitledPane,
                 ticketsTitledPane,
-                refundTitledPane
+                refundTitledPane,
+                bottomBox
         );
+
     }
 
     private void setupDateSelection() {
@@ -365,6 +364,7 @@ public class RefundsPage extends VBox {
         }
     }
 
+
     private double validateRefundAmount() throws IllegalArgumentException {
         try {
             double amount = Double.parseDouble(refundAmountField.getText().trim());
@@ -376,6 +376,13 @@ public class RefundsPage extends VBox {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Please enter a valid number for refund amount");
         }
+    }
+
+    private Button createBackButton() {
+        Button backButton = new Button("Back to Home");
+        backButton.setStyle("-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: bold;");
+        backButton.setOnAction(e -> getScene().setRoot(new HomePage(boxOfficeManager)));
+        return backButton;
     }
 
     private void showAlert(String title, String message, boolean isSuccess) {
@@ -393,3 +400,4 @@ public class RefundsPage extends VBox {
         alert.showAndWait();
     }
 }
+

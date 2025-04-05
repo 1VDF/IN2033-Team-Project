@@ -5,8 +5,6 @@ import boxoffice.database.Performance;
 import boxoffice.models.PerformanceRepository;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -67,13 +65,23 @@ public class HomePage extends VBox {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        // Bottom Buttons: Manager User and Logout
+
+
         HBox bottomButtons = new HBox(20);
         bottomButtons.setStyle("-fx-padding: 20px 50px 20px 50px;");
         bottomButtons.setAlignment(Pos.CENTER);
 
-        Button manageUsersButton = createStyledBottomButton("Manage Users", "file:src/boxoffice/images/manage-users.png");
-        Button logoutButton = createStyledBottomButton("Logout", "file:src/boxoffice/images/logout.png");
+        Button manageUsersButton = createStyledBottomButton("Manage Users");
+        manageUsersButton.setOnAction(e -> showManageUsersPage());
+
+        if (!boxOfficeManager.isManager()) {
+            manageUsersButton.setDisable(true);
+            manageUsersButton.setStyle(manageUsersButton.getStyle() + " -fx-opacity: 0.5;");
+            manageUsersButton.setTooltip(new Tooltip("Only Managers can access user management"));
+        }
+
+        Button logoutButton = createStyledBottomButton("Logout");
+        logoutButton.setOnAction(e -> handleLogout());
 
         Region bottomSpacer = new Region();
         HBox.setHgrow(bottomSpacer, Priority.ALWAYS);
@@ -183,15 +191,8 @@ public class HomePage extends VBox {
     }
 
 
-    private Button createStyledBottomButton(String buttonText, String imagePath) {
+    private Button createStyledBottomButton(String buttonText) {
         Button button = new Button(buttonText);
-
-        Image image = new Image(imagePath);
-        ImageView imageView = new ImageView(image);
-        imageView.setFitHeight(40);
-        imageView.setFitWidth(40);
-
-        button.setGraphic(imageView);
 
         button.setStyle("-fx-font-size: 16px; -fx-padding: 15px 40px; -fx-background-color: linear-gradient(to right, #3498DB, #5DADE2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px;");
 
@@ -207,6 +208,20 @@ public class HomePage extends VBox {
         button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-padding: 15px 40px; -fx-background-color: linear-gradient(to right, #3498DB, #5DADE2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px;"));
 
         return button;
+    }
+
+    private void handleLogout() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Logout Confirmation");
+        alert.setHeaderText("Are you sure you want to logout?");
+        alert.setContentText("You will need to login again to access the system.");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                boxOfficeManager.setCurrentStaff(null);
+                javafx.application.Platform.exit();
+            }
+        });
     }
 
 
@@ -229,4 +244,10 @@ public class HomePage extends VBox {
     private void showReportsPage() {
         this.getScene().setRoot(new ReportsPage(boxOfficeManager));
     }
+
+    private void showManageUsersPage() {
+        this.getScene().setRoot(new UserManagementPage(boxOfficeManager));
+    }
 }
+
+

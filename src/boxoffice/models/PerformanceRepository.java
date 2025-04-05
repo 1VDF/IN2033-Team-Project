@@ -68,7 +68,6 @@ public class PerformanceRepository {
     public String getVenueNameById(int venueId) throws SQLException {
         String venueName = "Unknown Venue";
 
-        // SQL query to fetch venue name
         String query = "SELECT name FROM venue WHERE venue_id = ?";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);

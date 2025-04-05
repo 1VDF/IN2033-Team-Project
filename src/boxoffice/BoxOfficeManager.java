@@ -4,6 +4,7 @@ import boxoffice.database.Staff;
 import boxoffice.database.TicketSale;
 import boxoffice.models.PerformanceRepository;
 import boxoffice.models.TicketSaleRepository;
+import javafx.scene.control.Alert;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -41,5 +42,12 @@ public class BoxOfficeManager {
         }
     }
 
+    public void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
 }
