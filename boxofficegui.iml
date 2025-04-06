@@ -18,5 +18,15 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="StriversOperations" level="application" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/operations/data/StriversOperations.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

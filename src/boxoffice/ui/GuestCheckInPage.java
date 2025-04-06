@@ -1,43 +1,138 @@
 package boxoffice.ui;
 
-import boxoffice.BoxOfficeManager;
 import boxoffice.database.TicketSale;
+import boxoffice.models.TicketSaleRepository;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+
+import java.sql.SQLException;
+import java.util.List;
 
 public class GuestCheckInPage extends VBox {
+    private final TextField searchField;
+    private final Button searchButton;
+    private final TableView<TicketSale> ticketsTable;
+    private final Button checkInButton;
+    private final Label statusLabel;
 
-    private final BoxOfficeManager boxOfficeManager;
+    public GuestCheckInPage() {
+        // Set up the search components
+        searchField = new TextField();
+        searchField.setPromptText("Enter customer name...");
 
-    public GuestCheckInPage(BoxOfficeManager boxOfficeManager) {
-        this.boxOfficeManager = boxOfficeManager;
+        searchButton = new Button("Search");
+        searchButton.setOnAction(e -> searchCustomerTickets());
 
-        // Title
-        Label title = new Label("Guest Check-In");
-        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
-        title.setStyle("-fx-text-fill: #333333;");
+        HBox searchBox = new HBox(10, searchField, searchButton);
+        searchBox.setPadding(new Insets(10));
+        HBox.setHgrow(searchField, Priority.ALWAYS);
 
-        // Ticket ID input
-        Label ticketCodeLabel = new Label("Enter Ticket ID:");
-        TextField ticketCodeField = new TextField();
-        ticketCodeField.setPromptText("Ticket ID");
+        // Set up the tickets table
+        ticketsTable = new TableView<>();
+        setupTableColumns();
 
-        Button checkInButton = new Button("Check-In Ticket");
-        checkInButton.setOnAction(e -> {
-            String ticketId = ticketCodeField.getText(); // Using Ticket ID instead of code
-            TicketSale ticketSale = boxOfficeManager.getTicketById(ticketId); // Use getTicketById method
-            if (ticketSale != null) {
-                System.out.println("Ticket Checked-In: " + ticketSale.getTicketSaleId());
+        // Set up the check-in button
+        checkInButton = new Button("Check In Selected Ticket");
+        checkInButton.setOnAction(e -> checkInTicket());
+        checkInButton.setDisable(true);
+
+        // Status label for messages
+        statusLabel = new Label();
+        statusLabel.setPadding(new Insets(5, 10, 10, 10));
+
+        // Add all components to the VBox
+        this.getChildren().addAll(searchBox, ticketsTable, checkInButton, statusLabel);
+        this.setSpacing(10);
+        this.setPadding(new Insets(10));
+
+        // Enable check-in button only when a ticket is selected
+        ticketsTable.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSelection, newSelection) -> checkInButton.setDisable(newSelection == null)
+        );
+    }
+
+    private void setupTableColumns() {
+        // Ticket ID column
+        TableColumn<TicketSale, Integer> idCol = new TableColumn<>("Ticket ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("ticketSaleId"));
+
+        // Performance ID column
+        TableColumn<TicketSale, Integer> performanceCol = new TableColumn<>("Performance ID");
+        performanceCol.setCellValueFactory(new PropertyValueFactory<>("performanceID"));
+
+        // Seat ID column
+        TableColumn<TicketSale, String> seatCol = new TableColumn<>("Seat");
+        seatCol.setCellValueFactory(new PropertyValueFactory<>("seatID"));
+
+        // Price column
+        TableColumn<TicketSale, Double> priceCol = new TableColumn<>("Price");
+        priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        // Checked-in status column
+        TableColumn<TicketSale, Boolean> checkedInCol = new TableColumn<>("Checked In");
+        checkedInCol.setCellValueFactory(new PropertyValueFactory<>("checkedIn"));
+
+        ticketsTable.getColumns().addAll(idCol, performanceCol, seatCol, priceCol, checkedInCol);
+    }
+
+    private void searchCustomerTickets() {
+        String customerName = searchField.getText().trim();
+
+        if (customerName.isEmpty()) {
+            statusLabel.setText("Please enter a customer name to search.");
+            return;
+        }
+
+        try {
+            // Use the repository method that joins with customer table
+            List<TicketSale> customerTickets = TicketSaleRepository.getTicketsByCustomerName(customerName);
+
+            if (customerTickets.isEmpty()) {
+                statusLabel.setText("No tickets found for customer: " + customerName);
             } else {
-                System.out.println("Ticket Not Found.");
+                statusLabel.setText("Found " + customerTickets.size() + " tickets for customer: " + customerName);
             }
-        });
 
-        // Layout setup
-        VBox layout = new VBox(10);
-        layout.setStyle("-fx-padding: 20;");
-        layout.getChildren().addAll(title, ticketCodeLabel, ticketCodeField, checkInButton);
+            ticketsTable.setItems(FXCollections.observableArrayList(customerTickets));
+        } catch (SQLException e) {
+            statusLabel.setText("Error accessing database: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
-        this.getChildren().add(layout);
+    private void checkInTicket() {
+        TicketSale selectedTicket = ticketsTable.getSelectionModel().getSelectedItem();
+
+        if (selectedTicket == null) {
+            statusLabel.setText("No ticket selected for check-in.");
+            return;
+        }
+
+        if (selectedTicket.isCheckedIn()) {
+            statusLabel.setText("This ticket has already been checked in.");
+            return;
+        }
+
+        try {
+            // Use the repository method to update the database
+            boolean success = TicketSaleRepository.markAsCheckedIn(selectedTicket.getTicketSaleId());
+
+            if (success) {
+                selectedTicket.setCheckedIn(true);
+                ticketsTable.refresh();
+                statusLabel.setText("Ticket #" + selectedTicket.getTicketSaleId() + " has been checked in successfully.");
+            } else {
+                statusLabel.setText("Failed to check in ticket #" + selectedTicket.getTicketSaleId());
+            }
+        } catch (SQLException e) {
+            statusLabel.setText("Error checking in ticket: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

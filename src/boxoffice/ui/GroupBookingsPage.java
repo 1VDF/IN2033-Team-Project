@@ -1,19 +1,14 @@
 package boxoffice.ui;
 
-import boxoffice.BoxOfficeManager;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GroupBookingsPage extends VBox {
 
-    private BoxOfficeManager boxOfficeManager;
-
-    public GroupBookingsPage(BoxOfficeManager boxOfficeManager) {
-        this.boxOfficeManager = boxOfficeManager;
+    public GroupBookingsPage() {
 
         // Title
         Label title = new Label("Group Booking");
@@ -46,9 +41,6 @@ public class GroupBookingsPage extends VBox {
             for (String seat : seatArray) {
                 seats.add(seat.trim());
             }
-
-            // Call BoxOfficeManager to create the group booking
-            //boxOfficeManager.createGroupBooking(groupName, seats, );
 
             //  confirmation message
             showConfirmation("Group booking created successfully.");

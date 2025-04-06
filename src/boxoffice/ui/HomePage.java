@@ -1,9 +1,11 @@
 
 package boxoffice.ui;
 
-import boxoffice.BoxOfficeManager;
 import boxoffice.database.Performance;
+import boxoffice.database.Staff;
 import boxoffice.models.PerformanceRepository;
+import boxoffice.models.Session;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -20,15 +22,21 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class HomePage extends VBox {
-
-    private final BoxOfficeManager boxOfficeManager;
     private final PerformanceRepository performanceRepository;
 
-    public HomePage(BoxOfficeManager boxOfficeManager) {
-        this.boxOfficeManager = boxOfficeManager;
+    public HomePage() {
         this.performanceRepository = new PerformanceRepository();
 
-        // Page Title
+        Image logoImage = new Image("boxoffice/data/lancaster_logo.png");
+        ImageView logoView = new ImageView(logoImage);
+        logoView.setFitHeight(190);
+        logoView.setFitWidth(190);
+        logoView.setPreserveRatio(true);
+
+        HBox logoContainer = new HBox(logoView);
+        logoContainer.setAlignment(Pos.TOP_LEFT);
+        logoContainer.setPadding(new Insets(20, 0, 0, 20));
+
         Text title = new Text("Box Office System");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 30));
         title.setFill(Color.web("#2C3E50"));
@@ -39,46 +47,72 @@ public class HomePage extends VBox {
         HBox buttonLayout = new HBox(30);
         buttonLayout.setAlignment(Pos.CENTER);
 
-        Button ticketSalesButton = createStyledButton("Ticket Sales", () -> showTicketSalesPage());
         Button guestCheckinButton = createStyledButton("Guest Check-in", () -> showGuestCheckinPage());
         Button groupBookingButton = createStyledButton("Group Booking", () -> showGroupBookingsPage());
+
         Button refundsButton = createStyledButton("Refunds", () -> showRefundsPage());
+
+        /*if (Session.getInstance().getCurrentStaff().getRole() == Staff.Role.Staff) {
+            refundsButton.setTooltip(new Tooltip("Only Managers can access refunds"));
+            refundsButton.setDisable(true);
+        }else{
+            refundsButton.setDisable(false);
+        }*/
+
         Button reportsButton = createStyledButton("Reports", () -> showReportsPage());
 
-        buttonLayout.getChildren().addAll(ticketSalesButton, guestCheckinButton, groupBookingButton, refundsButton, reportsButton);
-
-        VBox layout = new VBox(30);
-        layout.setAlignment(Pos.TOP_CENTER);
-        layout.setStyle("-fx-background-color: #ECF0F1; -fx-padding: 20px;");
-
-        layout.setPrefHeight(800);
-        layout.getChildren().addAll(title, topButtonSpacer, buttonLayout);
+        buttonLayout.getChildren().addAll(guestCheckinButton, groupBookingButton, refundsButton, reportsButton);
 
         Region gapBetweenButtonsAndTable = new Region();
         VBox.setVgrow(gapBetweenButtonsAndTable, Priority.ALWAYS);
 
-        layout.getChildren().add(gapBetweenButtonsAndTable);
-        layout.getChildren().add(getPerformanceTable());
-
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        // Bottom Buttons: Manager User and Logout
         HBox bottomButtons = new HBox(20);
         bottomButtons.setStyle("-fx-padding: 20px 50px 20px 50px;");
         bottomButtons.setAlignment(Pos.CENTER);
 
-        Button manageUsersButton = createStyledBottomButton("Manage Users", "file:src/boxoffice/images/manage-users.png");
-        Button logoutButton = createStyledBottomButton("Logout", "file:src/boxoffice/images/logout.png");
+        Button manageUsersButton = new Button("Manage Users");
+        manageUsersButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
+                "-fx-text-fill: white; -fx-background-radius: 5;");
+        manageUsersButton.setOnAction(e -> showManageUsersPage());
+
+        /*if (Session.getInstance().getCurrentStaff().getRole() == Staff.Role.Staff || Session.getInstance().getCurrentStaff().getRole() == Staff.Role.DeputyManager) {
+            manageUsersButton.setTooltip(new Tooltip("Only Managers can access user management"));
+            manageUsersButton.setDisable(true);
+        }else{
+            manageUsersButton.setDisable(false);
+        }*/
+
+        Button logoutButton = new Button("Logout");
+        logoutButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
+                "-fx-text-fill: white; -fx-background-radius: 5;");
+        logoutButton.setOnAction(e -> {
+            LoginPage loginPage = new LoginPage();
+            loginPage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
+            this.getScene().setRoot(loginPage);
+        });
 
         Region bottomSpacer = new Region();
         HBox.setHgrow(bottomSpacer, Priority.ALWAYS);
 
         bottomButtons.getChildren().addAll(manageUsersButton, bottomSpacer, logoutButton);
 
-        layout.getChildren().addAll(spacer, bottomButtons);
+        this.getChildren().addAll(
+                logoContainer,
+                title,
+                topButtonSpacer,
+                buttonLayout,
+                gapBetweenButtonsAndTable,
+                getPerformanceTable(),
+                spacer,
+                bottomButtons
+        );
 
-        this.getChildren().add(layout);
+        // Set VBox properties
+        this.setAlignment(Pos.TOP_CENTER);
+        this.setSpacing(0);
     }
 
     private VBox getPerformanceTable() {
@@ -138,7 +172,36 @@ public class HomePage extends VBox {
             performanceList.getChildren().add(errorLabel);
         }
 
-        performanceList.getChildren().addAll(performanceTitle, tableView);
+        Button bookTicketButton = new Button("Book a ticket");
+        bookTicketButton.setOnAction(event -> {
+            Performance selected = tableView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                if(selected.getVenueID() == 1) {
+                    TicketSalesPage ticketSalesPage = null; // Make sure selected is passed
+                    try {
+                        ticketSalesPage = new TicketSalesPage(selected);
+                        ticketSalesPage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                    this.getScene().setRoot(ticketSalesPage);
+                }
+                else{
+                    TicketSalesPageSmall ticketSalesPageSmall = null;
+                    try {
+                        ticketSalesPageSmall = new TicketSalesPageSmall(selected);
+                        ticketSalesPageSmall.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                    this.getScene().setRoot(ticketSalesPageSmall);
+                }
+            } else {
+                new Alert(Alert.AlertType.WARNING, "Please select a performance first").showAndWait();
+            }
+        });
+
+        performanceList.getChildren().addAll(performanceTitle, tableView,bookTicketButton);
         return performanceList;
     }
 
@@ -158,51 +221,26 @@ public class HomePage extends VBox {
         return button;
     }
 
-    private Button createStyledBottomButton(String buttonText, String imagePath) {
-        Button button = new Button(buttonText);
-
-        // Create an ImageView for the icon
-        Image image = new Image(imagePath);
-        ImageView imageView = new ImageView(image);
-        imageView.setFitHeight(40);  // Increase icon size
-        imageView.setFitWidth(40);
-
-        button.setGraphic(imageView);
-
-        button.setStyle("-fx-font-size: 16px; -fx-padding: 15px 40px; -fx-background-color: linear-gradient(to right, #3498DB, #5DADE2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px;");
-
-        button.setMinWidth(180);
-        button.setMinHeight(70);
-        button.setMaxWidth(180);
-        button.setMaxHeight(70);
-
-        button.setAlignment(Pos.CENTER);
-        button.setContentDisplay(ContentDisplay.CENTER);
-
-        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-padding: 15px 40px; -fx-background-color: linear-gradient(to right, #2980B9, #5499C7); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-padding: 15px 40px; -fx-background-color: linear-gradient(to right, #3498DB, #5DADE2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px;"));
-
-        return button;
-    }
-
-
     private void showTicketSalesPage() {
-        this.getScene().setRoot(new PerformancePage());
     }
 
     private void showGuestCheckinPage() {
-        this.getScene().setRoot(new GuestCheckInPage(boxOfficeManager));
+        this.getScene().setRoot(new GuestCheckInPage());
     }
 
     private void showGroupBookingsPage() {
-        this.getScene().setRoot(new GroupBookingsPage(boxOfficeManager));
+        this.getScene().setRoot(new GroupBookingsPage());
     }
 
     private void showRefundsPage() {
-        this.getScene().setRoot(new RefundsPage(boxOfficeManager));
+        this.getScene().setRoot(new RefundsPage());
     }
 
     private void showReportsPage() {
-        this.getScene().setRoot(new ReportsPage(boxOfficeManager));
+        this.getScene().setRoot(new ReportsPage());
+    }
+
+    private void showManageUsersPage() {
+        this.getScene().setRoot(new UserManagementPage());
     }
 }

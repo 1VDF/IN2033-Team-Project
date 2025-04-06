@@ -4,13 +4,17 @@ public class Staff {
     private int staffId;
     private String firstName;
     private String lastName;
-    private String role; // "Staff", "Manager", "Deputy Manager"
+    private Role role; // "Staff", "Manager", "Deputy Manager"
     private String email;
     private String password;
 
+    public enum Role {
+        Staff, Manager, DeputyManager
+    }
+
     // Constructor
     public Staff(int staffId, String firstName, String lastName,
-                 String role, String email, String password) {
+                 Role role, String email, String password) {
         this.staffId = staffId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -18,6 +22,7 @@ public class Staff {
         this.email = email;
         this.password = password;
     }
+
 
     // Getters and Setters
     public int getStaffId() { return staffId; }
@@ -29,8 +34,13 @@ public class Staff {
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }

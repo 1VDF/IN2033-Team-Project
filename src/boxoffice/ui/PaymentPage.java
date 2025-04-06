@@ -4,6 +4,7 @@ import boxoffice.database.Performance;
 import boxoffice.database.Seat;
 import boxoffice.database.TicketSale;
 import boxoffice.models.SeatRepository;
+import boxoffice.models.Session;
 import boxoffice.models.TicketSaleRepository;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -23,9 +24,22 @@ import static java.sql.Types.NULL;
 
 public class PaymentPage {
 
+    private static Set<String> wheelchairAdjacentSeatIds = new HashSet<>();
+
     public static boolean processPayment(Stage owner, List<Seat> selectedSeats, String customerId, String customerName,
                                          Performance selectedPerformance) throws SQLException {
         List<Seat> allSeats = SeatRepository.getAllSeatsFromMainHall();
+        wheelchairAdjacentSeatIds.clear();
+
+        for (Seat seat : selectedSeats) {
+            if (seat.isAccesible()) {
+                String adjacentSeatId = getAdjacentSeatId(seat.getSeatID(), allSeats);
+                if (adjacentSeatId != null && selectedSeats.stream()
+                        .anyMatch(s -> s.getSeatID().equals(adjacentSeatId))) {
+                    wheelchairAdjacentSeatIds.add(adjacentSeatId);
+                }
+            }
+        }
 
         // Create payment dialog
         Stage paymentDialog = new Stage();
@@ -106,7 +120,8 @@ public class PaymentPage {
                         paymentDialog,
                         selectedSeats,
                         customerName,
-                        totalAmount
+                        totalAmount,
+                        wheelchairAdjacentSeatIds
                 );
 
                 if (confirmed) {
@@ -193,7 +208,7 @@ public class PaymentPage {
                         seat.getSeatID(),
                         NULL,
                         NULL,
-                        1
+                        Session.getInstance().getCurrentStaff().getStaffId()
                 );
                 TicketSaleRepository.addTicketSale(accessibleTicket);
 
@@ -206,7 +221,7 @@ public class PaymentPage {
                         companionSeatId,
                         NULL,
                         NULL,
-                        1
+                        Session.getInstance().getCurrentStaff().getStaffId()
                 );
                 TicketSaleRepository.addTicketSale(companionTicket);
 
@@ -219,9 +234,9 @@ public class PaymentPage {
                         customerId,
                         performance.getPerformanceId(),
                         seat.getSeatID(),
-                        NULL, // no discount
-                        NULL, // no group booking
-                        1  // staff ID
+                        NULL,
+                        NULL,
+                        Session.getInstance().getCurrentStaff().getStaffId()
                 );
                 TicketSaleRepository.addTicketSale(ticket);
             }
@@ -230,8 +245,8 @@ public class PaymentPage {
 
     private static String getAdjacentSeatId(String seatId, List<Seat> allSeats) {
         try {
-            String prefix = seatId.substring(0, 3); // "MHA"
-            int number = Integer.parseInt(seatId.substring(3)); // "1" from "MHA1"
+            String prefix = seatId.substring(0, 3);
+            int number = Integer.parseInt(seatId.substring(3));
 
             // Try forward adjacent first
             String forwardSeatId = prefix + (number + 1);

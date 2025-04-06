@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static java.sql.Types.NULL;
+
 public class TicketSaleRepository {
 
     // Add new ticket sale record to the database
@@ -28,13 +30,13 @@ public class TicketSaleRepository {
             Integer discountId = ticket.getDiscountID();
             Integer groupBookingId = ticket.getGroupBookingID();
 
-            if (discountId == null) {
+            if (discountId == NULL) {
                 stmt.setNull(6, Types.INTEGER);
             } else {
                 stmt.setInt(6, discountId);
             }
 
-            if (groupBookingId == null) {
+            if (groupBookingId == NULL) {
                 stmt.setNull(7, Types.INTEGER);
             } else {
                 stmt.setInt(7, groupBookingId);
@@ -102,9 +104,10 @@ public class TicketSaleRepository {
                         rs.getInt("performance_id"),
                         rs.getString("seat_id"),
                         rs.getInt("discount_id"),
-                        rs.getInt("group_booking_id"),
+                        rs.getInt("group_id"),
                         rs.getInt("staff_id")
                 );
+                ticketSale.setCheckedIn(rs.getBoolean("checked_in"));
                 ticketSales.add(ticketSale);
             }
         }
@@ -128,35 +131,90 @@ public class TicketSaleRepository {
         return bookedSeats;
     }
 
-    // Get refundable tickets (those without a refund record or with a processing refund)
-    public static List<TicketSale> getRefundableTickets() throws SQLException {
-        List<TicketSale> refundableTickets = new ArrayList<>();
-        String query =
-                "SELECT ts.* FROM ticket_sale ts " +
-                        "LEFT JOIN refund r ON ts.ticket_sale_id = r.ticket_sale_id " +
-                        "WHERE r.ticket_sale_id IS NULL " +
-                        "OR r.refund_status = 'Processing'";  // Including those with 'Processing' status
+
+    public static List<TicketSale> getTicketsForRefund(int performanceId, String customerName) throws SQLException {
+        List<TicketSale> tickets = new ArrayList<>();
+        String query = "SELECT ts.* FROM ticket_sale ts " +
+                "JOIN customer c ON ts.customer_id = c.customer_id " +
+                "WHERE ts.performance_id = ? " +
+                "AND c.customer_name LIKE ? " +
+                "AND ts.refunded = 0";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            ResultSet rs = stmt.executeQuery();
+            stmt.setInt(1, performanceId);
+            stmt.setString(2, "%" + customerName + "%");
 
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                TicketSale ticketSale = new TicketSale(
+                TicketSale ticket = new TicketSale(
                         rs.getInt("ticket_sale_id"),
                         rs.getDouble("price"),
                         rs.getString("customer_id"),
                         rs.getInt("performance_id"),
                         rs.getString("seat_id"),
                         rs.getInt("discount_id"),
-                        rs.getInt("group_id"), // Fix to group_id
+                        rs.getInt("group_id"),
                         rs.getInt("staff_id")
                 );
-                refundableTickets.add(ticketSale);
+                tickets.add(ticket);
             }
         }
+        return tickets;
+    }
 
-        return refundableTickets;
+    public static Timestamp getSaleTimestamp(int ticketSaleId) throws SQLException {
+        String query = "SELECT sale_date FROM ticket_sale WHERE ticket_sale_id = ?";
+        try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, ticketSaleId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() ? rs.getTimestamp("sale_date") : null;
+        }
+    }
+
+    public static boolean markAsCheckedIn(int ticketSaleId) throws SQLException {
+        String sql = "UPDATE ticket_sale SET checked_in = TRUE WHERE ticket_sale_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, ticketSaleId);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        }
+    }
+
+    public static List<TicketSale> getTicketsByCustomerName(String customerName) throws SQLException {
+        List<TicketSale> tickets = new ArrayList<>();
+        String query = "SELECT ts.* FROM ticket_sale ts " +
+                "JOIN customer c ON ts.customer_id = c.customer_id " +
+                "WHERE c.customer_name LIKE ? " +
+                "AND ts.checked_in = 0";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, "%" + customerName + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                TicketSale ticket = new TicketSale(
+                        rs.getInt("ticket_sale_id"),
+                        rs.getDouble("price"),
+                        rs.getString("customer_id"),
+                        rs.getInt("performance_id"),
+                        rs.getString("seat_id"),
+                        rs.getInt("discount_id"),
+                        rs.getInt("group_id"),
+                        rs.getInt("staff_id")
+                );
+                ticket.setCheckedIn(rs.getBoolean("checked_in"));
+                tickets.add(ticket);
+            }
+        }
+        return tickets;
     }
 }
+

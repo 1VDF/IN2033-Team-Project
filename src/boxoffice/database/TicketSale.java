@@ -16,9 +16,10 @@ public class TicketSale {
     private int groupBookingID;
     private int staffID;
     private String customerID;
+    private boolean checkedIn;
 
+    private transient String customerName;
     // Constructors
-    public TicketSale() {}
 
     public TicketSale(int ticketSaleId, double price, String customerID, int performanceID, String seatID,
                       int discountID, int groupBookingID, int staffID) {
@@ -30,9 +31,13 @@ public class TicketSale {
         this.groupBookingID = groupBookingID;
         this.staffID = staffID;
         this.customerID = customerID;
+        this.checkedIn = false;
     }
 
     // Getters and Setters
+    public boolean isCheckedIn() { return checkedIn; }
+    public void setCheckedIn(boolean checkedIn) { this.checkedIn = checkedIn; }
+
     public int getTicketSaleId() { return ticketSaleId; }
     public void setTicketSaleId(int ticketSaleId) { this.ticketSaleId = ticketSaleId; }
 

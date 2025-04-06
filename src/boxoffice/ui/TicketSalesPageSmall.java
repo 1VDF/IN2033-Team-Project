@@ -1,10 +1,8 @@
 package boxoffice.ui;
 
-import boxoffice.BoxOfficeManager;
 import boxoffice.database.Customer;
 import boxoffice.database.Performance;
 import boxoffice.database.Seat;
-import boxoffice.database.TicketSale;
 import boxoffice.models.CustomerRepository;
 import boxoffice.models.SeatRepository;
 import boxoffice.models.TicketSaleRepository;
@@ -24,16 +22,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import javafx.geometry.Insets;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.sql.Types.NULL;
 
 public class TicketSalesPageSmall extends VBox {
     private Performance selectedPerformance;
@@ -53,6 +47,14 @@ public class TicketSalesPageSmall extends VBox {
     public void initializeUI(){
         // Load already booked seats for this performance
         try {
+            Image logoImage = new Image("boxoffice/data/lancaster_logo.png");
+            ImageView logoView = new ImageView(logoImage);
+            logoView.setFitHeight(190);
+            logoView.setFitWidth(190);
+            logoView.setPreserveRatio(true);
+            logoView.setLayoutX(-100);
+            logoView.setLayoutY(-50);
+
             bookedSeatIds.clear();
 
             bookedSeatIds.addAll(TicketSaleRepository.getBookedSeats(selectedPerformance.getPerformanceId()));
@@ -132,33 +134,46 @@ public class TicketSalesPageSmall extends VBox {
             greySeatLine11.setStroke(Color.GRAY);
 
             Label soundLabel = new Label("SOUND");
-            soundLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+            soundLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;-fx-text-fill: white;");
             soundLabel.setLayoutX(540);
             soundLabel.setLayoutY(110);
 
             Label deskLabel = new Label("DESK");
-            deskLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+            deskLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;-fx-text-fill: white;");
             deskLabel.setLayoutX(546);
             deskLabel.setLayoutY(130);
 
             Label aisleLabel = new Label("AISLE");
-            aisleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;");
+            aisleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;-fx-text-fill: white;");
             aisleLabel.setLayoutX(270);
             aisleLabel.setLayoutY(320);
             aisleLabel.setRotate(270);
 
             Button confirmButton = new Button("Confirm Selection");
-            confirmButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20;");
+            confirmButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
+                    "-fx-text-fill: white; -fx-background-radius: 5;");
             confirmButton.setDisable(true); // Disabled until seats are selected
-            confirmButton.setLayoutX(-50);
+            confirmButton.setLayoutX(850);
             confirmButton.setLayoutY(680);
+
+            Button backButton = new Button("Back");
+            backButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
+                    "-fx-text-fill: white; -fx-background-radius: 5;");
+            backButton.setLayoutX(-50);
+            backButton.setLayoutY(680);
+
+            backButton.setOnAction(e -> {
+                HomePage homePage = new HomePage();
+                homePage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
+                this.getScene().setRoot(homePage);
+            });
 
             // Combine the image and buttons
             Pane seatingPlanPane = new Pane(buttonPane,stageRect, stageLabel,leftWall,leftWallStairs,
                     rightWallLower,rightWallLower2,rightWall,upperWall,upperWall2,greySeatLine,greySeatLine2,
                     greySeatLine3,greySeatLine4,greySeatLine5,greySeatLine6,greySeatLine7,
                     greySeatLine8,greySeatLine9,greySeatLine10,greySeatLine11,
-                    soundLabel,deskLabel,aisleLabel,confirmButton);
+                    soundLabel,deskLabel,aisleLabel,confirmButton,backButton,logoView);
 
             setMargin(seatingPlanPane,new Insets(40,0,0,100));
 
@@ -199,6 +214,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("N");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
@@ -237,6 +253,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("M");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
 
@@ -275,6 +292,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("L");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         for (int i = 1; i <= 7; i++) {
@@ -312,6 +330,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("K");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
@@ -350,6 +369,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("J");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
@@ -388,6 +408,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("H");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
@@ -428,6 +449,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("G");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         //temp for starting value
@@ -468,6 +490,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("F");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
@@ -506,6 +529,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("E");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
@@ -544,6 +568,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("D");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
@@ -582,6 +607,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("C");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
@@ -620,6 +646,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("B");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats
@@ -658,6 +685,7 @@ public class TicketSalesPageSmall extends VBox {
         Label label = new Label("A");
         label.setLayoutX(startX - 20);
         label.setLayoutY(startY + 5);
+        label.setStyle("-fx-text-fill: white;");
         pane.getChildren().add(label);
 
         // Create Cc 1-8 seats

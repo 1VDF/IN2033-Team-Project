@@ -11,14 +11,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class ReceiptPage {
 
-    public static boolean showReceipt(Stage owner, List<Seat> selectedSeats, String customerName, double totalAmount) {
-        // Separate accessibility and standard seats
+    public static boolean showReceipt(Stage owner, List<Seat> selectedSeats, String customerName, double totalAmount, Set<String> wheelchairAdjacentSeatIds) {
         List<Seat> accessibilitySeats = selectedSeats.stream()
                 .filter(Seat::isAccesible)
                 .collect(Collectors.toList());
@@ -34,30 +35,34 @@ public class ReceiptPage {
 
         if (!standardSeats.isEmpty()) {
             receiptContent.append("STANDARD SEATS:\n");
-            standardSeats.forEach(seat ->
-                    receiptContent.append(String.format("- %s (Row %s, Seat %d): $%.2f%n",
-                            seat.getSeatID(),
-                            seat.getRowNumber(),
-                            seat.getSeatNumber(),
-                            25.00)));
+            standardSeats.forEach(seat -> {
+                double price = wheelchairAdjacentSeatIds.contains(seat.getSeatID()) ? 0.00 : 25.00;
+                receiptContent.append(String.format("- %s (Row %s, Seat %d): $%.2f%n",
+                        seat.getSeatID(),
+                        seat.getRowNumber(),
+                        seat.getSeatNumber(),
+                        price));
+            });
             receiptContent.append("\n");
         }
 
         if (!accessibilitySeats.isEmpty()) {
             receiptContent.append("ACCESSIBILITY SEATS:\n");
-            accessibilitySeats.forEach(seat ->
-                    receiptContent.append(String.format("- %s (Row %s, Seat %d): $%.2f%n",
-                            seat.getSeatID(),
-                            seat.getRowNumber(),
-                            seat.getSeatNumber(),
-                            25.00)));
+            accessibilitySeats.forEach(seat -> {
+                double price = wheelchairAdjacentSeatIds.contains(seat.getSeatID()) ? 0.00 : 25.00;
+                receiptContent.append(String.format("- %s (Row %s, Seat %d): $%.2f%n",
+                        seat.getSeatID(),
+                        seat.getRowNumber(),
+                        seat.getSeatNumber(),
+                        price));
+            });
             receiptContent.append("\n");
         }
 
         receiptContent.append(String.format("%nTOTAL AMOUNT: $%.2f%n%n", totalAmount));
         receiptContent.append("Do you confirm this booking?");
 
-        // Create receipt dialog
+        // Rest of the method remains the same...
         Stage receiptDialog = new Stage();
         receiptDialog.initModality(Modality.APPLICATION_MODAL);
         receiptDialog.initOwner(owner);
@@ -77,7 +82,6 @@ public class ReceiptPage {
         layout.setPadding(new Insets(20));
         layout.setAlignment(Pos.CENTER);
 
-        // Create a flag to track confirmation
         AtomicBoolean isConfirmed = new AtomicBoolean(false);
 
         confirmButton.setOnAction(e -> {
@@ -93,4 +97,5 @@ public class ReceiptPage {
 
         return isConfirmed.get();
     }
+
 }
