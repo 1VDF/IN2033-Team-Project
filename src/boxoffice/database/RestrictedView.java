@@ -5,15 +5,20 @@ public class RestrictedView {
 
     private int performanceID;
 
-    private int seat_number;
+    private int seatID;
 
-    private String row_number;
+    public enum Type {
+        partial, full
+    }
 
-    RestrictedView(int restrictedID, int performanceID, int seat_number, String row_number){
+    private Type type;
+
+
+    RestrictedView(int restrictedID, int performanceID, int seatID, Type type){
         this.restrictedID = restrictedID;
         this.performanceID = performanceID;
-        this.seat_number = seat_number;
-        this.row_number = row_number;
+        this.seatID = seatID;
+        this.type = type;
     }
 
     public int getRestrictedID() {
@@ -32,29 +37,29 @@ public class RestrictedView {
         this.performanceID = performanceID;
     }
 
-    public int getSeat_number() {
-        return seat_number;
+    public int getSeatID() {
+        return seatID;
     }
 
-    public void setSeat_number(int seat_number) {
-        this.seat_number = seat_number;
+    public void setSeatID(int seatID) {
+        this.seatID = seatID;
     }
 
-    public String getRow_number() {
-        return row_number;
+    public Type getType() {
+        return type;
     }
 
-    public void setRow_number(String row_number) {
-        this.row_number = row_number;
+    public void setType(Type type) {
+        this.type = type;
     }
 
     @Override
     public String toString() {
-        return "entity.restricted_view_seat{" +
-                "restricted_id=" + restrictedID +
-                ", performance_id=" + performanceID +
-                ", seat_number=" + seat_number +
-                ", row_number='" + row_number + '\'' +
+        return "RestrictedView{" +
+                "restrictedID=" + restrictedID +
+                ", performanceID=" + performanceID +
+                ", seatID=" + seatID +
+                ", type=" + type +
                 '}';
     }
 }

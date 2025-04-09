@@ -377,8 +377,11 @@ public class RefundsPage extends VBox {
 
     private Button createBackButton() {
         Button backButton = new Button("Back to Home");
-        backButton.setStyle("-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: bold;");
-        backButton.setOnAction(e -> getScene().setRoot(new HomePage()));
+        backButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
+                "-fx-text-fill: white; -fx-background-radius: 5;");
+        HomePage homePage = new HomePage();
+        homePage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
+        backButton.setOnAction(e -> getScene().setRoot(homePage));
         return backButton;
     }
 

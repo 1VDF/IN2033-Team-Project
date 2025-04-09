@@ -36,6 +36,14 @@ public class JDBC {
         return operationsData.getMonthlyRevenueReport(connection,year,month);
     }
 
+    public List<TicketSale> getAllTicketSales() throws SQLException {
+        return operationsData.getAllTicketSales(connection);
+    }
+
+    public int getTotalRevenue() throws SQLException{
+        return operationsData.getTotalRevenue(connection);
+    }
+
     public void close() throws SQLException{
         if(connection != null){
             connection.close();

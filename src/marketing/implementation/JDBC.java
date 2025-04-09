@@ -13,7 +13,7 @@ public class JDBC {
 
     private final Connection connection;
 
-    private OperationsAccessImplementation operationsData;
+    private MarketingAccessImpl marketingData;
 
     public JDBC() throws ClassNotFoundException, SQLException {
         String url = "jdbc:mysql://sst-stuproj.city.ac.uk/in2033t25";
@@ -22,15 +22,19 @@ public class JDBC {
 
         Class.forName("com.mysql.cj.jdbc.Driver");
         this.connection = DriverManager.getConnection(url,user,pass);
-        this.operationsData = new OperationsAccessImplementation();
+        this.marketingData = new MarketingAccessImpl();
     }
 
     public List<TicketSale> getTicketSalesBasedOnEvent(String performanceName) throws SQLException {
-        return operationsData.getTicketSalesBasedOnEvent(connection,performanceName);
+        return marketingData.getTicketSalesBasedOnEvent(connection,performanceName);
     }
 
     public int getRevenueBasedOnEvent(String performanceName) {
-        return operationsData.getRevenueBasedOnEvent(connection,performanceName);
+        return marketingData.getRevenueBasedOnEvent(connection,performanceName);
+    }
+
+    public Map<String, Object> getMonthlyRevenueReport(int year, int month) throws SQLException {
+        return marketingData.getMonthlyRevenueReport(connection,year,month);
     }
 
     public void close() throws SQLException{

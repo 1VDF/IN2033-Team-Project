@@ -4,6 +4,7 @@ import boxoffice.database.Customer;
 import boxoffice.database.Performance;
 import boxoffice.database.Seat;
 import boxoffice.models.CustomerRepository;
+import boxoffice.models.RestrictedRepository;
 import boxoffice.models.SeatRepository;
 import boxoffice.models.TicketSaleRepository;
 import javafx.collections.FXCollections;
@@ -35,13 +36,27 @@ public class TicketSalesPage extends VBox {
     private List<String> accesibleSeatIDs = SeatRepository.getAccessibleSeatIDs();
     private final int maxSeatsSelectable = 11;
 
+    private ComboBox<String> restrictionTypeComboBox;
+    private boolean isRestrictedManagementMode = false;
+    private final Set<String> fullRestrictedSeats = new HashSet<>();
+    private final Set<String> partialRestrictedSeats = new HashSet<>();
     public TicketSalesPage(Performance performance) throws SQLException {
         this.selectedPerformance = performance;
         initializeUI();
+        updateAllSeatColors();
     }
 
     public void initializeUI(){
         try {
+            Map<String, String> restrictedSeats = RestrictedRepository.getRestrictedSeats(selectedPerformance.getPerformanceId());
+            for (Map.Entry<String, String> entry : restrictedSeats.entrySet()) {
+                if ("full".equals(entry.getValue())) {
+                    fullRestrictedSeats.add(entry.getKey());
+                } else if ("partial".equals(entry.getValue())) {
+                    partialRestrictedSeats.add(entry.getKey());
+                }
+            }
+
             Image logoImage = new Image("boxoffice/data/lancaster_logo.png");
             ImageView logoView = new ImageView(logoImage);
             logoView.setFitHeight(190);
@@ -88,6 +103,118 @@ public class TicketSalesPage extends VBox {
             createStallsSeatsRowC(buttonPane);
             createStallsSeatsRowB(buttonPane);
             createStallsSeatsRowA(buttonPane);
+
+            CheckBox restrictedManagementCheckbox = new CheckBox("Restricted Management");
+            restrictedManagementCheckbox.setStyle("-fx-text-fill: white;");
+
+            restrictionTypeComboBox = new ComboBox<>();
+            restrictionTypeComboBox.getItems().addAll("full", "partial");
+            restrictionTypeComboBox.setValue("full");
+            restrictionTypeComboBox.setDisable(true);
+
+            Button saveRestrictionsButton = new Button("Save Restrictions");
+            saveRestrictionsButton.setDisable(true);
+            saveRestrictionsButton.setOnAction(e -> saveSeatRestrictions());
+
+            HBox managementControls = new HBox(10, restrictedManagementCheckbox, restrictionTypeComboBox, saveRestrictionsButton);
+            managementControls.setAlignment(Pos.CENTER_RIGHT);
+            managementControls.setLayoutX(700);
+            managementControls.setLayoutY(-50);
+
+            restrictedManagementCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+                isRestrictedManagementMode = newVal;
+                restrictionTypeComboBox.setDisable(!newVal);
+                saveRestrictionsButton.setDisable(!newVal);
+                updateAllSeatColors();
+            });
+
+            restrictionTypeComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            });
+
+
+            Rectangle keyRect = new Rectangle(180,180);
+            keyRect.setStroke(Color.BLACK);
+            keyRect.setFill(Color.TRANSPARENT);
+            keyRect.setStrokeWidth(2);
+            keyRect.setX(-100);
+            keyRect.setY(300);
+
+            Label keyLabel = new Label("Key Table");
+            keyLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;-fx-text-fill: white;");
+            keyLabel.setLayoutX(-30);
+            keyLabel.setLayoutY(310);
+
+            Rectangle orangeRect = new Rectangle(10,10);
+            orangeRect.setFill(Color.ORANGE);
+            orangeRect.setStroke(Color.BLACK);
+            orangeRect.setStrokeWidth(1);
+            orangeRect.setX(-80);
+            orangeRect.setY(350);
+
+            Label orangeRectLabel = new Label("- Fully restricted seats");
+            orangeRectLabel.setStyle("-fx-font-size: 10px;-fx-text-fill: white;");
+            orangeRectLabel.setLayoutX(-70);
+            orangeRectLabel.setLayoutY(348);
+
+            Rectangle yellowRect = new Rectangle(10,10);
+            yellowRect.setFill(Color.YELLOW);
+            yellowRect.setStroke(Color.BLACK);
+            yellowRect.setStrokeWidth(1);
+            yellowRect.setX(-80);
+            yellowRect.setY(370);
+
+            Label yellowRectLabel = new Label("- Partially restricted seats");
+            yellowRectLabel.setStyle("-fx-font-size: 10px;-fx-text-fill: white;");
+            yellowRectLabel.setLayoutX(-70);
+            yellowRectLabel.setLayoutY(368);
+
+            Rectangle redRect = new Rectangle(10,10);
+            redRect.setFill(Color.RED);
+            redRect.setStroke(Color.BLACK);
+            redRect.setStrokeWidth(1);
+            redRect.setX(-80);
+            redRect.setY(390);
+
+            Label redRectLabel = new Label("- Booked seats");
+            redRectLabel.setStyle("-fx-font-size: 10px;-fx-text-fill: white;");
+            redRectLabel.setLayoutX(-70);
+            redRectLabel.setLayoutY(388);
+
+            Rectangle greenRect = new Rectangle(10,10);
+            greenRect.setFill(Color.GREEN);
+            greenRect.setStroke(Color.BLACK);
+            greenRect.setStrokeWidth(1);
+            greenRect.setX(-80);
+            greenRect.setY(410);
+
+            Label greenRectLabel = new Label("- Selected seats");
+            greenRectLabel.setStyle("-fx-font-size: 10px;-fx-text-fill: white;");
+            greenRectLabel.setLayoutX(-70);
+            greenRectLabel.setLayoutY(408);
+
+            Rectangle blueRect = new Rectangle(10,10);
+            blueRect.setFill(Color.BLUE);
+            blueRect.setStroke(Color.BLACK);
+            blueRect.setStrokeWidth(1);
+            blueRect.setX(-80);
+            blueRect.setY(430);
+
+            Label blueRectLabel = new Label("- Wheelchair seats");
+            blueRectLabel.setStyle("-fx-font-size: 10px;-fx-text-fill: white;");
+            blueRectLabel.setLayoutX(-70);
+            blueRectLabel.setLayoutY(428);
+
+            Rectangle greyRect = new Rectangle(10,10);
+            greyRect.setFill(Color.LIGHTGREY);
+            greyRect.setStroke(Color.BLACK);
+            greyRect.setStrokeWidth(1);
+            greyRect.setX(-80);
+            greyRect.setY(450);
+
+            Label greyRectLabel = new Label("- Standard seats");
+            greyRectLabel.setStyle("-fx-font-size: 10px;-fx-text-fill: white;");
+            greyRectLabel.setLayoutX(-70);
+            greyRectLabel.setLayoutY(448);
 
             Rectangle stallsBorder = new Rectangle();
             stallsBorder.setFill(Color.TRANSPARENT);
@@ -141,9 +268,16 @@ public class TicketSalesPage extends VBox {
             Button confirmButton = new Button("Confirm Selection");
             confirmButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
                     "-fx-text-fill: white; -fx-background-radius: 5;");
-            confirmButton.setDisable(true); // Disabled until seats are selected
+            confirmButton.setDisable(true);
             confirmButton.setLayoutX(850);
             confirmButton.setLayoutY(680);
+
+
+            confirmButton.setOnAction(e -> {
+                if(validateSeatSelection()) {
+                    showCustomerDialog();
+                }
+            });
 
             Button backButton = new Button("Back");
             backButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
@@ -151,31 +285,24 @@ public class TicketSalesPage extends VBox {
             backButton.setLayoutX(-50);
             backButton.setLayoutY(680);
 
-            // Combine the image and buttons
-            Pane seatingPlanPane = new Pane(buttonPane,stallsBorder,stallsLabelLeft,stallsLabelRight,
-                    balconyLabelUpper, balconyLabelLeft, balconyLabelRight,stageRect,stageLabel,confirmButton,backButton,logoView);
-            setMargin(seatingPlanPane,new Insets(40,0,0,100));
-
-
             backButton.setOnAction(e -> {
                 HomePage homePage = new HomePage();
                 homePage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
                 this.getScene().setRoot(homePage);
             });
 
-            // Action when confirm button is clicked
-            confirmButton.setOnAction(e -> {
-                if(validateSeatSelection()) {
-                    showCustomerDialog(); // Your existing code
-                }
-            });
+            // Combine the image and buttons
+            Pane seatingPlanPane = new Pane(buttonPane,stallsBorder,stallsLabelLeft,stallsLabelRight,
+                    balconyLabelUpper, balconyLabelLeft, balconyLabelRight,stageRect,stageLabel,confirmButton,backButton,
+                    logoView,managementControls,keyRect,keyLabel,orangeRectLabel,orangeRect,yellowRectLabel,yellowRect,
+                    redRectLabel,redRect,greenRectLabel,greenRect,blueRectLabel,blueRect,greyRectLabel,greyRect);
 
-            // Enable/disable button based on seat selection
+            setMargin(seatingPlanPane,new Insets(40,0,0,100));
+
             selectedSeats.addListener((ListChangeListener<Seat>) change -> {
                 confirmButton.setDisable(selectedSeats.isEmpty());
             });
 
-            // Add components to the main VBox
             this.getChildren().addAll(
                     seatingPlanPane
             );
@@ -1070,20 +1197,49 @@ public class TicketSalesPage extends VBox {
                 int seatNumber = Integer.parseInt(parts[1]);
                 String seatId = "MH" + row + seatNumber;
 
-                // Check if already selected
-                boolean isSelected = selectedSeats.stream()
-                        .anyMatch(s -> s.getSeatID().equals(seatId));
+                if (isRestrictedManagementMode) {
+                    String restrictionType = restrictionTypeComboBox.getValue();
 
-                if (isSelected) {
-                    handleWheelchairPairDeselection(seat, seatId);
-                } else {
-                    if (accesibleSeatIDs.contains(seatId)) {
-                        // Show confirmation for accessible seat
-                        showAccessibleSeatConfirmation(seat, row, seatNumber, seatId);
+                    if (fullRestrictedSeats.contains(seatId) || partialRestrictedSeats.contains(seatId)) {
+                        fullRestrictedSeats.remove(seatId);
+                        partialRestrictedSeats.remove(seatId);
+                        if (accesibleSeatIDs.contains(seatId)) {
+                            seat.setStyle("-fx-background-color: #067bc4;");
+                        } else {
+                            seat.setStyle("-fx-background-color: #cccccc;");
+                        }
                     } else {
-                        // Normal seat selection
-                        selectedSeats.add(new Seat(seatId, row, seatNumber, false));
-                        seat.setStyle("-fx-background-color: #14b904;");
+                        if ("full".equals(restrictionType)) {
+                            fullRestrictedSeats.add(seatId);
+                            partialRestrictedSeats.remove(seatId);
+                            seat.setStyle("-fx-background-color: #ffa500;");
+                        } else {
+                            partialRestrictedSeats.add(seatId);
+                            fullRestrictedSeats.remove(seatId);
+                            seat.setStyle("-fx-background-color: #ffff00;");
+                        }
+                    }
+                } else {
+                    boolean isSelected = selectedSeats.stream()
+                            .anyMatch(s -> s.getSeatID().equals(seatId));
+
+                    if (isSelected) {
+                        handleWheelchairPairDeselection(seat, seatId);
+                        selectedSeats.removeIf(s -> s.getSeatID().equals(seatId));
+                        if (partialRestrictedSeats.contains(seatId)) {
+                            seat.setStyle("-fx-background-color: #ffff00;");
+                        } else if (accesibleSeatIDs.contains(seatId)) {
+                            seat.setStyle("-fx-background-color: #067bc4;");
+                        } else {
+                            seat.setStyle("-fx-background-color: #cccccc;");
+                        }
+                    } else {
+                        if (accesibleSeatIDs.contains(seatId)) {
+                            showAccessibleSeatConfirmation(seat, row, seatNumber, seatId);
+                        } else {
+                            selectedSeats.add(new Seat(seatId, row, seatNumber, false));
+                            seat.setStyle("-fx-background-color: #14b904;");
+                        }
                     }
                 }
             }
@@ -1168,15 +1324,13 @@ public class TicketSalesPage extends VBox {
 
     private String getAdjacentSeatId(String seatId, List<Seat> allSeats) {
         try {
-            String prefix = seatId.substring(0, 2); // "MH"
-            String rowAndNumber = seatId.substring(2); // "A1" or "AA1"
+            String prefix = seatId.substring(0, 2);
+            String rowAndNumber = seatId.substring(2);
 
-            // Separate row letters from seat number
             String row = rowAndNumber.replaceAll("\\d+", "");
             String numberStr = rowAndNumber.substring(row.length());
             int number = Integer.parseInt(numberStr);
 
-            // Try forward adjacent seat first (higher number)
             String forwardSeatId = prefix + row + (number + 1);
             boolean forwardExists = allSeats.stream()
                     .anyMatch(s -> s.getSeatID().equals(forwardSeatId));
@@ -1185,7 +1339,6 @@ public class TicketSalesPage extends VBox {
                 return forwardSeatId;
             }
 
-            // If no forward seat, try backward adjacent (lower number)
             if (number > 1) {
                 String backwardSeatId = prefix + row + (number - 1);
                 boolean backwardExists = allSeats.stream()
@@ -1205,37 +1358,33 @@ public class TicketSalesPage extends VBox {
 
     private String findAvailableAdjacentSeat(String seatId, List<Seat> allSeats, Set<String> bookedSeatIds, List<Seat> currentlySelectedSeats) {
         try {
-            String prefix = seatId.substring(0, 2); // "MH"
-            String rowAndNumber = seatId.substring(2); // "A1" or "AA1"
+            String prefix = seatId.substring(0, 2);
+            String rowAndNumber = seatId.substring(2);
 
-            // Separate row letters from seat number
             String row = rowAndNumber.replaceAll("\\d+", "");
             String numberStr = rowAndNumber.substring(row.length());
             int number = Integer.parseInt(numberStr);
-
-            // Check both directions and return first available
             String[] directions = {String.valueOf(number + 1), String.valueOf(number - 1)};
 
             for (String dirNumber : directions) {
                 String adjacentSeatId = prefix + row + dirNumber;
 
-                // Check if seat exists in venue
                 boolean seatExists = allSeats.stream()
                         .anyMatch(s -> s.getSeatID().equals(adjacentSeatId));
 
                 if (!seatExists) continue;
 
-                // Check if seat is already booked
                 boolean isBooked = bookedSeatIds.contains(adjacentSeatId);
 
-                // Check if seat is already selected as a companion
+                boolean isFullyRestricted = fullRestrictedSeats.contains(adjacentSeatId);
+
                 boolean isSelectedAsCompanion = currentlySelectedSeats.stream()
                         .anyMatch(s -> s.getSeatID().equals(adjacentSeatId) &&
                                 selectedSeats.stream().anyMatch(sel ->
                                         sel.isAccesible() &&
                                                 getAdjacentSeatId(sel.getSeatID(), allSeats).equals(adjacentSeatId)));
 
-                if (!isBooked && !isSelectedAsCompanion) {
+                if (!isBooked && !isSelectedAsCompanion && !isFullyRestricted) {
                     return adjacentSeatId;
                 }
             }
@@ -1487,5 +1636,55 @@ public class TicketSalesPage extends VBox {
         Scene scene = new Scene(grid);
         dialog.setScene(scene);
         dialog.showAndWait();
+    }
+
+    private void saveSeatRestrictions() {
+        try {
+            RestrictedRepository.clearPerformanceRestrictions(selectedPerformance.getPerformanceId());
+
+            for (String seatId : fullRestrictedSeats) {
+                RestrictedRepository.setSeatRestriction(selectedPerformance.getPerformanceId(), seatId, "full");
+            }
+
+            for (String seatId : partialRestrictedSeats) {
+                RestrictedRepository.setSeatRestriction(selectedPerformance.getPerformanceId(), seatId, "partial");
+            }
+
+            new Alert(Alert.AlertType.INFORMATION, "Seat restrictions saved successfully").showAndWait();
+        } catch (SQLException e) {
+            new Alert(Alert.AlertType.ERROR, "Failed to save seat restrictions").showAndWait();
+            e.printStackTrace();
+        }
+    }
+
+    private void updateAllSeatColors() {
+        Pane seatingPlanPane = (Pane) this.getChildren().getFirst();
+        for (Node node : seatingPlanPane.getChildren()) {
+            if (node instanceof Pane) {
+                Pane buttonPane = (Pane) node;
+                for (Node buttonNode : buttonPane.getChildren()) {
+                    if (buttonNode instanceof Button) {
+                        Button seatButton = (Button) buttonNode;
+                        Object userData = seatButton.getUserData();
+                        if (userData instanceof String) {
+                            String[] parts = ((String) userData).split(" ");
+                            if (parts.length == 2) {
+                                String row = parts[0];
+                                int seatNumber = Integer.parseInt(parts[1]);
+                                String seatId = "MH" + row + seatNumber;
+                                if (fullRestrictedSeats.contains(seatId)) {
+                                    seatButton.setStyle("-fx-background-color: #ffa500;");
+                                    seatButton.setDisable(!isRestrictedManagementMode);
+                                }
+                                else if (partialRestrictedSeats.contains(seatId)) {
+                                    seatButton.setStyle("-fx-background-color: #ffff00;");
+                                    seatButton.setDisable(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

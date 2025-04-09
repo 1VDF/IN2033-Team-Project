@@ -76,7 +76,6 @@ public class LoginPage extends VBox {
 
         Pane loginPane = new Pane(logoView,titleLabel,emailLabel,emailField,passwordLabel,passwordField,loginButton);
 
-        // Layout
         this.getChildren().addAll(
                 loginPane
         );
@@ -97,20 +96,21 @@ public class LoginPage extends VBox {
 
         try {
             Staff staff = staffRepository.authenticate(email, password);
-            if (staff != null) {
-                // Store staff in session
+            if (staff != null){
+                if(password.equals(staff.getPassword())){
                 Session.getInstance().setCurrentStaff(staff);
 
-                // Navigate to PerformancePage
                 HomePage homePage = new HomePage();
                 homePage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
                 this.getScene().setRoot(homePage);
 
-                // Clear fields
                 emailField.clear();
                 passwordField.clear();
-            } else {
-                showAlert("Login Failed", "Invalid email or password.");
+                } else {
+                    showAlert("Login Failed", "Invalid password.");
+                    }
+            }else {
+                showAlert("Login Failed", "No account found with that email");
             }
         } catch (SQLException e) {
             showAlert("Database Error", "Could not connect to the database: " + e.getMessage());

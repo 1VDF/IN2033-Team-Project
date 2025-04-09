@@ -3,9 +3,7 @@ package boxoffice.ui;
 import boxoffice.database.Performance;
 import boxoffice.database.Seat;
 import boxoffice.database.TicketSale;
-import boxoffice.models.SeatRepository;
-import boxoffice.models.Session;
-import boxoffice.models.TicketSaleRepository;
+import boxoffice.models.*;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -25,6 +23,9 @@ import static java.sql.Types.NULL;
 public class PaymentPage {
 
     private static Set<String> wheelchairAdjacentSeatIds = new HashSet<>();
+
+    static double price = 25;
+
 
     public static boolean processPayment(Stage owner, List<Seat> selectedSeats, String customerId, String customerName,
                                          Performance selectedPerformance) throws SQLException {
@@ -63,11 +64,9 @@ public class PaymentPage {
         giftCardButton.setToggleGroup(paymentGroup);
         cashButton.setSelected(true);
 
-        // Discount code field
         Label discountLabel = new Label("Discount Code (if any):");
         TextField discountField = new TextField();
 
-        // Gift card code field
         Label giftCardLabel = new Label("Gift Card Code:");
         TextField giftCardField = new TextField();
         giftCardLabel.setVisible(false);
@@ -79,11 +78,9 @@ public class PaymentPage {
             giftCardField.setVisible(isGiftCard);
         });
 
-        // Calculate total amount (excluding companion seats)
-        double totalAmount = calculateTotalAmount(selectedSeats,allSeats);
-        Label totalLabel = new Label(String.format("Total Amount: $%.2f", totalAmount));
+        double initialTotalAmount = calculateTotalAmount(selectedSeats, allSeats, "");
+        Label totalLabel = new Label(String.format("Total Amount: £%.2f", initialTotalAmount));
 
-        // Buttons
         Button processPaymentButton = new Button("Process Payment");
         Button cancelPaymentButton = new Button("Cancel");
 
@@ -115,22 +112,27 @@ public class PaymentPage {
                     return;
                 }
 
-                // Show receipt for confirmation
+                if (!discountCode.isEmpty() && getDiscountIdByCode(discountCode) == null) {
+                    new Alert(Alert.AlertType.ERROR, "Invalid discount code").showAndWait();
+                    return;
+                }
+
+                double finalTotalAmount = calculateTotalAmount(selectedSeats, allSeats, discountCode);
+
                 boolean confirmed = ReceiptPage.showReceipt(
                         paymentDialog,
                         selectedSeats,
                         customerName,
-                        totalAmount,
+                        finalTotalAmount,
                         wheelchairAdjacentSeatIds
                 );
 
                 if (confirmed) {
-                    // Create ticket sales
-                    createTicketSales(selectedSeats,allSeats, customerId, selectedPerformance);
+                    createTicketSales(selectedSeats,allSeats, customerId, selectedPerformance,discountCode);
 
                     new Alert(Alert.AlertType.INFORMATION,
-                            String.format("Payment processed successfully!\nMethod: %s\nAmount: $%.2f",
-                                    paymentMethod, totalAmount)).showAndWait();
+                            String.format("Payment processed successfully!\nMethod: %s\nAmount: £%.2f",
+                                    paymentMethod, finalTotalAmount)).showAndWait();
 
                     paymentSuccess.set(true);
                     paymentDialog.close();
@@ -150,69 +152,82 @@ public class PaymentPage {
         return paymentSuccess.get();
     }
 
-    private static double calculateTotalAmount(List<Seat> selectedSeats, List<Seat> allSeats) {
+    private static double calculateTotalAmount(List<Seat> selectedSeats, List<Seat> allSeats, String discountName) throws SQLException {
         double total = 0;
         Set<String> processedCompanionSeats = new HashSet<>();
+        Integer discountId = getDiscountIdByCode(discountName);
 
         for (Seat seat : selectedSeats) {
-            // Skip if this is a companion seat we've already processed
             if (processedCompanionSeats.contains(seat.getSeatID())) {
                 continue;
             }
 
-            // Check if this is an accessible seat with a companion
+            List<String> partialRestrictedSeats = RestrictedRepository.getPartialRestrictedSeats();
+
+                if(partialRestrictedSeats.contains(seat.getSeatID())){
+                    price = 21;
+                }else{
+                    price = 25;
+                }
+
+            double finalPrice = applyDiscount(price, discountId);
+
             if (seat.isAccesible()) {
                 String companionSeatId = getAdjacentSeatId(seat.getSeatID(), allSeats);
                 boolean hasCompanion = selectedSeats.stream()
                         .anyMatch(s -> s.getSeatID().equals(companionSeatId));
 
                 if (hasCompanion) {
-                    // Charge only for the accessible seat (companion is free)
-                    total += 25.0;
+                    total += finalPrice;
                     processedCompanionSeats.add(companionSeatId);
                 } else {
-                    // Accessible seat booked alone
-                    total += 25.0;
+                    total += finalPrice;
                 }
             } else {
-                // Normal seat
-                total += 25.0;
+                total += finalPrice;
             }
         }
         return total;
     }
 
     private static void createTicketSales(List<Seat> selectedSeats, List<Seat> allSeats, String customerId,
-                                          Performance performance) throws Exception {
+                                          Performance performance, String discountName) throws Exception {
         Set<String> processedCompanionSeats = new HashSet<>();
+        Integer discountId = getDiscountIdByCode(discountName);
 
         for (Seat seat : selectedSeats) {
-            // Skip if this is a companion seat we've already processed
             if (processedCompanionSeats.contains(seat.getSeatID())) {
                 continue;
             }
 
-            // Check if this is an accessible seat with a companion
+            List<String> partialRestrictedSeats = RestrictedRepository.getPartialRestrictedSeats();
+
+            if(partialRestrictedSeats.contains(seat.getSeatID())){
+                price = 21;
+            }else{
+                price = 25;
+            }
+
+            double finalPrice = applyDiscount(price, discountId);
+
             boolean isAccessible = seat.isAccesible();
             String companionSeatId = getAdjacentSeatId(seat.getSeatID(),allSeats);
             boolean hasCompanion = companionSeatId != null &&
                     selectedSeats.stream().anyMatch(s -> s.getSeatID().equals(companionSeatId));
 
             if (isAccessible && hasCompanion) {
-                // Create ticket for accessible seat
                 TicketSale accessibleTicket = new TicketSale(
                         0,
-                        25.0,
+                        finalPrice,
                         customerId,
                         performance.getPerformanceId(),
                         seat.getSeatID(),
-                        NULL,
+                        discountId,
                         NULL,
                         Session.getInstance().getCurrentStaff().getStaffId()
                 );
                 TicketSaleRepository.addTicketSale(accessibleTicket);
 
-                // Create companion ticket (free)
                 TicketSale companionTicket = new TicketSale(
                         0,
                         0.0,
@@ -227,14 +242,13 @@ public class PaymentPage {
 
                 processedCompanionSeats.add(companionSeatId);
             } else {
-                // Normal seat booking
                 TicketSale ticket = new TicketSale(
                         0, // auto-generated ID
-                        25.0, // normal price
+                        finalPrice, // normal price
                         customerId,
                         performance.getPerformanceId(),
                         seat.getSeatID(),
-                        NULL,
+                        discountId,
                         NULL,
                         Session.getInstance().getCurrentStaff().getStaffId()
                 );
@@ -248,7 +262,6 @@ public class PaymentPage {
             String prefix = seatId.substring(0, 3);
             int number = Integer.parseInt(seatId.substring(3));
 
-            // Try forward adjacent first
             String forwardSeatId = prefix + (number + 1);
             boolean forwardExists = allSeats.stream()
                     .anyMatch(s -> s.getSeatID().equals(forwardSeatId));
@@ -257,7 +270,6 @@ public class PaymentPage {
                 return forwardSeatId;
             }
 
-            // If no forward seat, try backward adjacent
             if (number > 1) {
                 String backwardSeatId = prefix + (number - 1);
                 boolean backwardExists = allSeats.stream()
@@ -273,4 +285,20 @@ public class PaymentPage {
             return null;
         }
     }
+
+    private static Integer getDiscountIdByCode(String discountName) throws SQLException {
+        if (discountName == null) {
+            return null;
+        }
+        return DiscountRepository.getDiscountIdByName(discountName);
+    }
+
+    private static double applyDiscount(double originalPrice, Integer discountId) throws SQLException {
+        if (discountId == null) {
+            return originalPrice;
+        }
+        double discountValue = DiscountRepository.getDiscountValueById(discountId);
+        return originalPrice * (1 - discountValue/100);
+    }
+
 }

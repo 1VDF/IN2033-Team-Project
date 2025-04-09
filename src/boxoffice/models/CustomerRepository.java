@@ -4,6 +4,8 @@ import boxoffice.database.Customer;
 import boxoffice.database.DBConnection;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CustomerRepository {
     public static Customer getCustomerById(String customerId) throws SQLException {
@@ -52,5 +54,27 @@ public class CustomerRepository {
             stmt.setString(4, customer.getEmail());
             return stmt.executeUpdate() > 0;
         }
+    }
+
+    public List<Customer> getAllCustomers() throws SQLException {
+        List<Customer> customers = new ArrayList<>();
+        String sql = "SELECT * FROM customer";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                customers.add(new Customer(
+                        rs.getString("customer_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("phone_number"),
+                        rs.getString("email")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return customers;
     }
 }

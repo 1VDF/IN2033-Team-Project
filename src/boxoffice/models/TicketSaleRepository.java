@@ -54,7 +54,7 @@ public class TicketSaleRepository {
         try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, ticketSaleId); // Use String parameter since ticketSaleId is a String
+            stmt.setString(1, ticketSaleId);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -64,12 +64,12 @@ public class TicketSaleRepository {
                         rs.getString("customer_id"),
                         rs.getInt("performance_id"),
                         rs.getString("seat_id"),
-                        rs.getInt("discount_id"),  // Keeping discount_id if it's needed
-                        rs.getInt("group_id"), // Fixing to group_id
+                        rs.getInt("discount_id"),
+                        rs.getInt("group_id"),
                         rs.getInt("staff_id")
                 );
             }
-            return null;  // No TicketSale found
+            return null;
         }
     }
 
@@ -86,36 +86,6 @@ public class TicketSaleRepository {
         }
     }
 
-    // Get all ticket sales from the database
-    public static List<TicketSale> getAllTicketSales() throws SQLException {
-        List<TicketSale> ticketSales = new ArrayList<>();
-        String query = "SELECT * FROM ticket_sale";
-
-        try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                TicketSale ticketSale = new TicketSale(
-                        rs.getInt("ticket_sale_id"),
-                        rs.getDouble("price"),
-                        rs.getString("customer_id"),
-                        rs.getInt("performance_id"),
-                        rs.getString("seat_id"),
-                        rs.getInt("discount_id"),
-                        rs.getInt("group_id"),
-                        rs.getInt("staff_id")
-                );
-                ticketSale.setCheckedIn(rs.getBoolean("checked_in"));
-                ticketSales.add(ticketSale);
-            }
-        }
-
-        return ticketSales;
-    }
-
-    // Get all booked seats for a specific performance
     public static Set<String> getBookedSeats(int performanceId) throws SQLException {
         Set<String> bookedSeats = new HashSet<>();
         String sql = "SELECT seat_id FROM ticket_sale WHERE performance_id = ?";

@@ -5,9 +5,13 @@ import boxoffice.models.TicketSaleRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
@@ -22,7 +26,16 @@ public class GuestCheckInPage extends VBox {
     private final Label statusLabel;
 
     public GuestCheckInPage() {
-        // Set up the search components
+        Image logoImage = new Image("boxoffice/data/lancaster_logo.png");
+        ImageView logoView = new ImageView(logoImage);
+        logoView.setFitHeight(190);
+        logoView.setFitWidth(190);
+        logoView.setPreserveRatio(true);
+
+        HBox logoContainer = new HBox(logoView);
+        logoContainer.setAlignment(Pos.TOP_LEFT);
+        logoContainer.setPadding(new Insets(20, 0, 0, 20));
+
         searchField = new TextField();
         searchField.setPromptText("Enter customer name...");
 
@@ -33,48 +46,63 @@ public class GuestCheckInPage extends VBox {
         searchBox.setPadding(new Insets(10));
         HBox.setHgrow(searchField, Priority.ALWAYS);
 
-        // Set up the tickets table
         ticketsTable = new TableView<>();
         setupTableColumns();
 
-        // Set up the check-in button
+
         checkInButton = new Button("Check In Selected Ticket");
         checkInButton.setOnAction(e -> checkInTicket());
         checkInButton.setDisable(true);
+        checkInButton.setLayoutX(-50);
+        checkInButton.setLayoutY(680);
+        checkInButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
+                "-fx-text-fill: white; -fx-background-radius: 5;");
 
-        // Status label for messages
+        Button backButton = new Button("Back");
+        backButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
+                "-fx-text-fill: white; -fx-background-radius: 5;");
+        backButton.setLayoutX(650);
+        backButton.setLayoutY(680);
+
+        backButton.setOnAction(e -> {
+            HomePage homePage = new HomePage();
+            homePage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
+            this.getScene().setRoot(homePage);
+        });
+
         statusLabel = new Label();
         statusLabel.setPadding(new Insets(5, 10, 10, 10));
+        statusLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;-fx-text-fill: white;");
+        statusLabel.setLayoutX(-50);
+        statusLabel.setLayoutY(650);
 
-        // Add all components to the VBox
-        this.getChildren().addAll(searchBox, ticketsTable, checkInButton, statusLabel);
-        this.setSpacing(10);
+        HBox bottomBox = new HBox(880,checkInButton,backButton);
+
+
+        this.getChildren().addAll(logoContainer,searchBox, ticketsTable,statusLabel,bottomBox);
+        this.setSpacing(0);
         this.setPadding(new Insets(10));
 
-        // Enable check-in button only when a ticket is selected
         ticketsTable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> checkInButton.setDisable(newSelection == null)
         );
     }
 
     private void setupTableColumns() {
-        // Ticket ID column
         TableColumn<TicketSale, Integer> idCol = new TableColumn<>("Ticket ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("ticketSaleId"));
 
-        // Performance ID column
+
         TableColumn<TicketSale, Integer> performanceCol = new TableColumn<>("Performance ID");
         performanceCol.setCellValueFactory(new PropertyValueFactory<>("performanceID"));
 
-        // Seat ID column
+
         TableColumn<TicketSale, String> seatCol = new TableColumn<>("Seat");
         seatCol.setCellValueFactory(new PropertyValueFactory<>("seatID"));
 
-        // Price column
         TableColumn<TicketSale, Double> priceCol = new TableColumn<>("Price");
         priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
 
-        // Checked-in status column
         TableColumn<TicketSale, Boolean> checkedInCol = new TableColumn<>("Checked In");
         checkedInCol.setCellValueFactory(new PropertyValueFactory<>("checkedIn"));
 
@@ -90,7 +118,6 @@ public class GuestCheckInPage extends VBox {
         }
 
         try {
-            // Use the repository method that joins with customer table
             List<TicketSale> customerTickets = TicketSaleRepository.getTicketsByCustomerName(customerName);
 
             if (customerTickets.isEmpty()) {
@@ -120,7 +147,6 @@ public class GuestCheckInPage extends VBox {
         }
 
         try {
-            // Use the repository method to update the database
             boolean success = TicketSaleRepository.markAsCheckedIn(selectedTicket.getTicketSaleId());
 
             if (success) {

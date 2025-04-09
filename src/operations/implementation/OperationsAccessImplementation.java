@@ -41,6 +41,32 @@ public class OperationsAccessImplementation {
         return ticketSales;
     }
 
+    public List<TicketSale> getAllTicketSales(Connection connection) throws SQLException {
+        List<TicketSale> ticketSales = new ArrayList<>();
+
+        String query = "SELECT * FROM ticket_sale";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                TicketSale ticketSale = new TicketSale(
+                        rs.getInt("ticket_sale_id"),
+                        rs.getDouble("price"),
+                        rs.getString("customer_id"),
+                        rs.getInt("performance_id"),
+                        rs.getString("seat_id"),
+                        rs.getInt("discount_id"),
+                        rs.getInt("group_id"),
+                        rs.getInt("staff_id")
+                );
+                ticketSales.add(ticketSale);
+            }
+        }
+
+        return ticketSales;
+    }
+
     public int getRevenueBasedOnEvent(Connection connection, String performanceName) {
         int totalRevenue = 0;
 
@@ -59,7 +85,27 @@ public class OperationsAccessImplementation {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return -1; // Indicate error
+            return -1;
+        }
+
+        return totalRevenue;
+    }
+
+    public int getTotalRevenue(Connection connection) {
+        int totalRevenue = 0;
+
+        String query = "SELECT price FROM ticket_sale WHERE price > 0";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                totalRevenue += rs.getDouble("price");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
         }
 
         return totalRevenue;

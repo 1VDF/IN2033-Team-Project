@@ -28,5 +28,15 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="mkApp2" level="application" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/marketing/data/mkApp2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

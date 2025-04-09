@@ -4,45 +4,58 @@ import java.time.LocalDate;
 public class Discount {
     private int discountId;
     private String discountType; // "NHS", "Military", "Student", "Staff"
-    private double discountPercentage;
-    private LocalDate validFrom;
-    private LocalDate validUntil;
+    private double discountValue;
+    private boolean isPercentage;
 
     // Constructors
 
     public Discount(int discountId, String discountType, double discountPercentage,
-                    LocalDate validFrom, LocalDate validUntil) {
+                    boolean isPercentage) {
         this.discountId = discountId;
         this.discountType = discountType;
-        this.discountPercentage = discountPercentage;
-        this.validFrom = validFrom;
-        this.validUntil = validUntil;
+        this.discountValue = discountPercentage;
+        this.isPercentage = isPercentage;
     }
 
-    // Getters and Setters
-    public int getDiscountId() { return discountId; }
-    public void setDiscountId(int discountId) { this.discountId = discountId; }
+    public int getDiscountId() {
+        return discountId;
+    }
 
-    public String getDiscountType() { return discountType; }
-    public void setDiscountType(String discountType) { this.discountType = discountType; }
+    public void setDiscountId(int discountId) {
+        this.discountId = discountId;
+    }
 
-    public double getDiscountPercentage() { return discountPercentage; }
-    public void setDiscountPercentage(double discountPercentage) { this.discountPercentage = discountPercentage; }
+    public String getDiscountType() {
+        return discountType;
+    }
 
-    public LocalDate getValidFrom() { return validFrom; }
-    public void setValidFrom(LocalDate validFrom) { this.validFrom = validFrom; }
+    public void setDiscountType(String discountType) {
+        this.discountType = discountType;
+    }
 
-    public LocalDate getValidUntil() { return validUntil; }
-    public void setValidUntil(LocalDate validUntil) { this.validUntil = validUntil; }
+    public double getDiscountValue() {
+        return discountValue;
+    }
+
+    public void setDiscountValue(double discountValue) {
+        this.discountValue = discountValue;
+    }
+
+    public boolean isPercentage() {
+        return isPercentage;
+    }
+
+    public void setPercentage(boolean percentage) {
+        isPercentage = percentage;
+    }
 
     @Override
     public String toString() {
         return "entity.discount{" +
-                "discount_id=" + discountId +
-                ", discount_type='" + discountType + '\'' +
-                ", discount_percentage=" + discountPercentage +
-                ", valid_from=" + validFrom +
-                ", valid_until=" + validUntil +
+                "discountId=" + discountId +
+                ", discountType='" + discountType + '\'' +
+                ", discountValue=" + discountValue +
+                ", isPercentage=" + isPercentage +
                 '}';
     }
 }

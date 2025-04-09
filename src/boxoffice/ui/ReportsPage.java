@@ -1,10 +1,14 @@
 package boxoffice.ui;
 
 import boxoffice.models.ReportsRepository;
+import javafx.geometry.Insets;
 import javafx.scene.chart.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -34,11 +38,24 @@ public class ReportsPage extends VBox {
 
     public ReportsPage() {
 
+        Image logoImage = new Image("boxoffice/data/lancaster_logo.png");
+        ImageView logoView = new ImageView(logoImage);
+        logoView.setFitHeight(190);
+        logoView.setFitWidth(190);
+        logoView.setPreserveRatio(true);
+
         Text title = new Text("Box Office Reports");
-        title.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-fill: #2a2a2a;");
+        title.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-fill: #ffffff;");
         title.setFont(Font.font("Arial", 30));
         DropShadow shadow = new DropShadow(10, Color.GRAY);
         title.setEffect(shadow);
+        title.setX(470);
+        title.setY(120);
+
+        HBox logoContainer = new HBox(logoView);
+        logoContainer.setAlignment(Pos.TOP_LEFT);
+        logoContainer.setPadding(new Insets(20, 0, 0, 20));
+
 
         ComboBox<String> chartTypeComboBox = new ComboBox<>();
         chartTypeComboBox.getItems().addAll("Pie Chart", "Bar Chart");
@@ -65,6 +82,18 @@ public class ReportsPage extends VBox {
         totalText.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-fill: #4CAF50;");
         totalText.setFont(Font.font("Arial", 18));
 
+        Button backButtonHome = new Button("Back");
+        backButtonHome.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
+                "-fx-text-fill: white; -fx-background-radius: 5;");
+        backButtonHome.setLayoutX(-50);
+        backButtonHome.setLayoutY(680);
+
+        backButtonHome.setOnAction(e -> {
+            HomePage homePage = new HomePage();
+            homePage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
+            this.getScene().setRoot(homePage);
+        });
+
         HBox comboBoxContainer = new HBox(20, chartTypeComboBox, reportTypeComboBox, timeRangeComboBox);
         comboBoxContainer.setAlignment(Pos.CENTER);
         comboBoxContainer.setStyle("-fx-padding: 20px;");
@@ -77,14 +106,12 @@ public class ReportsPage extends VBox {
         timeRangeComboBox.setOnAction(event -> updateChart(reportTypeComboBox, timeRangeComboBox));
 
         Button exportButton = createExportButton();
-        Button backButton = createBackButton();
-        HBox buttonContainer = new HBox(20, exportButton, backButton);
+        HBox buttonContainer = new HBox(20, exportButton);
         buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setStyle("-fx-padding: 20px;");
 
-        this.getChildren().addAll(title, comboBoxContainer, chartContainer, totalText, buttonContainer);
+        this.getChildren().addAll(logoContainer,title, comboBoxContainer, chartContainer, totalText, buttonContainer,backButtonHome);
         this.setAlignment(Pos.CENTER);
-        this.setStyle("-fx-background-color: #f4f4f4; -fx-padding: 30px; -fx-spacing: 20px;");
     }
 
     private void updateChart(ComboBox<String> reportTypeComboBox, ComboBox<String> timeRangeComboBox) {
@@ -110,7 +137,7 @@ public class ReportsPage extends VBox {
                 break;
         }
 
-        StackPane chartContainer = (StackPane) this.getChildren().get(2);
+        StackPane chartContainer = (StackPane) this.getChildren().get(3);
         chartContainer.getChildren().clear();
 
         if (currentChartType.equals("Pie Chart")) {
@@ -290,13 +317,6 @@ public class ReportsPage extends VBox {
                 : currentStartDate.format(formatter) + "_" + currentEndDate.format(formatter);
 
         return "BoxOfficeReport_" + currentReportType.replace(" ", "") + "_" + dateRange + ".csv";
-    }
-
-    private Button createBackButton() {
-        Button backButton = new Button("Back to Home");
-        backButton.setStyle("-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: bold;");
-        backButton.setOnAction(e -> getScene().setRoot(new HomePage()));
-        return backButton;
     }
 
     public void showAlert(String title, String message) {

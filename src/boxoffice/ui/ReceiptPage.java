@@ -1,6 +1,7 @@
 package boxoffice.ui;
 
 import boxoffice.database.Seat;
+import boxoffice.models.RestrictedRepository;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class ReceiptPage {
 
-    public static boolean showReceipt(Stage owner, List<Seat> selectedSeats, String customerName, double totalAmount, Set<String> wheelchairAdjacentSeatIds) {
+    public static boolean showReceipt(Stage owner, List<Seat> selectedSeats, String customerName,double totalAmount, Set<String> wheelchairAdjacentSeatIds) {
         List<Seat> accessibilitySeats = selectedSeats.stream()
                 .filter(Seat::isAccesible)
                 .collect(Collectors.toList());
@@ -28,7 +29,6 @@ public class ReceiptPage {
                 .filter(seat -> !seat.isAccesible())
                 .collect(Collectors.toList());
 
-        // Create receipt content
         StringBuilder receiptContent = new StringBuilder();
         receiptContent.append("=== BOOKING RECEIPT ===\n");
         receiptContent.append("Customer: ").append(customerName).append("\n\n");
@@ -37,7 +37,14 @@ public class ReceiptPage {
             receiptContent.append("STANDARD SEATS:\n");
             standardSeats.forEach(seat -> {
                 double price = wheelchairAdjacentSeatIds.contains(seat.getSeatID()) ? 0.00 : 25.00;
-                receiptContent.append(String.format("- %s (Row %s, Seat %d): $%.2f%n",
+                try {
+                    if (RestrictedRepository.getPartialRestrictedSeats().contains(seat.getSeatID())&& !wheelchairAdjacentSeatIds.contains(seat.getSeatID())) {
+                        price = 21;
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                receiptContent.append(String.format("- %s (Row %s, Seat %d): £%.2f%n",
                         seat.getSeatID(),
                         seat.getRowNumber(),
                         seat.getSeatNumber(),
@@ -50,7 +57,14 @@ public class ReceiptPage {
             receiptContent.append("ACCESSIBILITY SEATS:\n");
             accessibilitySeats.forEach(seat -> {
                 double price = wheelchairAdjacentSeatIds.contains(seat.getSeatID()) ? 0.00 : 25.00;
-                receiptContent.append(String.format("- %s (Row %s, Seat %d): $%.2f%n",
+                try {
+                    if (RestrictedRepository.getPartialRestrictedSeats().contains(seat.getSeatID()) && !wheelchairAdjacentSeatIds.contains(seat.getSeatID())) {
+                        price = 21;
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                receiptContent.append(String.format("- %s (Row %s, Seat %d): £%.2f%n",
                         seat.getSeatID(),
                         seat.getRowNumber(),
                         seat.getSeatNumber(),
@@ -59,10 +73,9 @@ public class ReceiptPage {
             receiptContent.append("\n");
         }
 
-        receiptContent.append(String.format("%nTOTAL AMOUNT: $%.2f%n%n", totalAmount));
+        receiptContent.append(String.format("%nTOTAL AMOUNT: £%.2f%n%n", totalAmount));
         receiptContent.append("Do you confirm this booking?");
 
-        // Rest of the method remains the same...
         Stage receiptDialog = new Stage();
         receiptDialog.initModality(Modality.APPLICATION_MODAL);
         receiptDialog.initOwner(owner);

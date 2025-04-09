@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -40,7 +41,9 @@ public class UserManagementPage extends VBox {
 
         Text title = new Text("User Management");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 30));
-        title.setFill(Color.web("#2C3E50"));
+        title.setFill(Color.WHITE);
+        DropShadow shadow = new DropShadow(10, Color.GRAY);
+        title.setEffect(shadow);
 
         setupStaffTable();
 
@@ -57,7 +60,11 @@ public class UserManagementPage extends VBox {
 
         Button backButton = new Button("Back to Home");
         backButton.setStyle("-fx-background-color: #3498DB; -fx-text-fill: white; -fx-font-weight: bold;");
-        backButton.setOnAction(e -> getScene().setRoot(new HomePage()));
+        backButton.setOnAction(e -> {
+            HomePage homePage = new HomePage();
+            homePage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
+            this.getScene().setRoot(homePage);
+        });
 
         buttonBox.getChildren().addAll(addButton, deleteButton, backButton);
 
