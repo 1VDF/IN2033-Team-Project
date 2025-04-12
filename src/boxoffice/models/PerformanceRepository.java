@@ -8,10 +8,24 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Repository class to interact with the 'performance' table in the database.
+ * This class handles operations related to performances and their details.
+ */
 public class PerformanceRepository {
 
+    /**
+     * Constructs a PerformanceRepository object.
+     */
     public PerformanceRepository() {}
 
+    /**
+     * Reads performance data from the ResultSet and maps it into a list of Performance objects.
+     *
+     * @param rs The ResultSet to read data from.
+     * @return A list of Performance objects.
+     * @throws SQLException If a database access error occurs.
+     */
     private List<Performance> readPerformanceColumns(ResultSet rs) throws SQLException {
         List<Performance> performances = new ArrayList<>();
         while (rs.next()) {
@@ -31,6 +45,12 @@ public class PerformanceRepository {
         return performances;
     }
 
+    /**
+     * Retrieves all performances from the database, including venue information.
+     *
+     * @return A list of Performance objects.
+     * @throws SQLException If a database access error occurs.
+     */
     public List<Performance> getAllPerformances() throws SQLException {
         String query = "SELECT p.*, v.name AS venue_name " +
                 "FROM performance p " +
@@ -44,6 +64,13 @@ public class PerformanceRepository {
         }
     }
 
+    /**
+     * Adds a new performance to the database.
+     *
+     * @param performance The performance object to be added.
+     * @return true if the performance was successfully added, otherwise false.
+     * @throws SQLException If a database access error occurs.
+     */
     public boolean addPerformance(Performance performance) throws SQLException {
         String insertSQL = "INSERT INTO performance (title, performance_type, description, date, start_time, duration_minutes, venue_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -64,11 +91,15 @@ public class PerformanceRepository {
         }
     }
 
-    // Method to get venue name by ID
+    /**
+     * Retrieves the name of a venue based on its ID.
+     *
+     * @param venueId The ID of the venue.
+     * @return The name of the venue.
+     * @throws SQLException If a database access error occurs.
+     */
     public String getVenueNameById(int venueId) throws SQLException {
         String venueName = "Unknown Venue";
-
-        // SQL query to fetch venue name
         String query = "SELECT name FROM venue WHERE venue_id = ?";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
@@ -83,6 +114,13 @@ public class PerformanceRepository {
         return venueName;
     }
 
+    /**
+     * Retrieves a performance by its ID, including venue information.
+     *
+     * @param performanceId The ID of the performance.
+     * @return The Performance object, or null if not found.
+     * @throws SQLException If a database access error occurs.
+     */
     public static Performance getPerformanceById(int performanceId) throws SQLException {
         String query = "SELECT p.*, v.name AS venue_name " +
                 "FROM performance p " +
@@ -112,6 +150,13 @@ public class PerformanceRepository {
         return null;
     }
 
+    /**
+     * Retrieves a list of performances for a specific date, sorted by their start time.
+     *
+     * @param date The date to filter performances by.
+     * @return A list of Performance objects scheduled for the specified date.
+     * @throws SQLException If a database access error occurs.
+     */
     public static List<Performance> getPerformancesByDate(LocalDate date) throws SQLException {
         List<Performance> performances = new ArrayList<>();
         String query = "SELECT p.*, v.name as venue_name FROM performance p " +
@@ -142,5 +187,4 @@ public class PerformanceRepository {
         }
         return performances;
     }
-
 }

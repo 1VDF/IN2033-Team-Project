@@ -7,7 +7,19 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Provides database operations related to the Customer entity.
+ * This class allows retrieving, adding, and managing customer data in the database.
+ */
 public class CustomerRepository {
+
+    /**
+     * Retrieves a Customer from the database by their unique customer ID.
+     *
+     * @param customerId The unique ID of the customer.
+     * @return A Customer object corresponding to the customer ID, or null if no customer is found.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static Customer getCustomerById(String customerId) throws SQLException {
         String sql = "SELECT * FROM customer WHERE customer_id = ?";
         try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
@@ -26,7 +38,14 @@ public class CustomerRepository {
         }
     }
 
-    public static Customer getCustomerByName(String customerName) throws SQLException{
+    /**
+     * Retrieves a Customer from the database by their name.
+     *
+     * @param customerName The name of the customer.
+     * @return A Customer object corresponding to the customer name, or null if no customer is found.
+     * @throws SQLException If an SQL error occurs.
+     */
+    public static Customer getCustomerByName(String customerName) throws SQLException {
         String sql = "SELECT * FROM customer WHERE customer_name = ?";
         try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -44,6 +63,13 @@ public class CustomerRepository {
         }
     }
 
+    /**
+     * Adds a new customer to the database.
+     *
+     * @param customer The Customer object to be added.
+     * @return true if the customer was successfully added, false otherwise.
+     * @throws SQLException If an SQL error occurs.
+     */
     public static boolean addCustomer(Customer customer) throws SQLException {
         String sql = "INSERT INTO customer (customer_id, customer_name, phone_number, email) VALUES (?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
@@ -56,6 +82,12 @@ public class CustomerRepository {
         }
     }
 
+    /**
+     * Retrieves a list of all customers from the database.
+     *
+     * @return A List of all Customer objects.
+     * @throws SQLException If an SQL error occurs.
+     */
     public List<Customer> getAllCustomers() throws SQLException {
         List<Customer> customers = new ArrayList<>();
         String sql = "SELECT * FROM customer";

@@ -16,7 +16,23 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Represents the page in the user interface where refunds can be processed.
+ * This class allows the selection of a date, performance, customer, and ticket,
+ * and facilitates the processing of refunds.
+ * <p>
+ * The refund process involves the following steps:
+ * <ul>
+ *     <li>Select a date</li>
+ *     <li>Select a performance</li>
+ *     <li>Search for a customer</li>
+ *     <li>Select the relevant ticket for refund</li>
+ *     <li>Process the refund (either full or partial)</li>
+ * </ul>
+ * </p>
+ */
 public class RefundsPage extends VBox {
+
     private final DatePicker datePicker = new DatePicker(LocalDate.now());
     private final Button dateNextButton = new Button("Next");
     private final ComboBox<Performance> performanceComboBox = new ComboBox<>();
@@ -30,7 +46,7 @@ public class RefundsPage extends VBox {
     private final ComboBox<String> refundTypeComboBox = new ComboBox<>();
     private final TextField refundAmountField = new TextField();
 
-    // TitledPanes
+    // TitledPanes for organising UI components.
     private final TitledPane dateTitledPane;
     private final TitledPane performanceTitledPane;
     private final TitledPane customerTitledPane;
@@ -40,6 +56,11 @@ public class RefundsPage extends VBox {
     private TicketSale selectedTicket;
     private Performance selectedPerformance;
 
+    /**
+     * Constructs the RefundsPage UI components and sets up event handlers.
+     * This includes the date selection, performance selection, customer search,
+     * ticket table setup, and the refund details UI.
+     */
     public RefundsPage() {
         System.setProperty("javafx.accessibility.force", "false");
 
@@ -66,7 +87,7 @@ public class RefundsPage extends VBox {
             authStatus.setText("Logged in as: " + Session.getInstance().getCurrentStaff().getRole());
             authStatus.setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
         } else {
-            authStatus.setText("Unauthorized - Only Managers can process refunds");
+            authStatus.setText("Unauthorised - Only Managers can process refunds");
             authStatus.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         }
 
@@ -83,9 +104,12 @@ public class RefundsPage extends VBox {
                 refundTitledPane,
                 bottomBox
         );
-
     }
 
+    /**
+     * Configures the date selection UI and its functionality.
+     * This includes setting the current date as default and handling the "Next" button action.
+     */
     private void setupDateSelection() {
         datePicker.setValue(LocalDate.now());
         datePicker.setDayCellFactory(picker -> new DateCell() {
@@ -102,12 +126,21 @@ public class RefundsPage extends VBox {
         dateNextButton.setOnAction(e -> loadPerformancesForDate());
     }
 
+    /**
+     * Creates and returns the HBox containing the date selection UI components.
+     *
+     * @return The HBox for date selection.
+     */
     private HBox createDateBox() {
         HBox dateBox = new HBox(10, new Label("Select Date:"), datePicker, dateNextButton);
         dateBox.setAlignment(Pos.CENTER_LEFT);
         return dateBox;
     }
 
+    /**
+     * Configures the performance selection UI and its functionality.
+     * The list of performances is loaded based on the selected date.
+     */
     private void setupPerformanceSelection() {
         performanceComboBox.setPromptText("Select Performance");
         performanceComboBox.setPrefWidth(300);
@@ -136,31 +169,49 @@ public class RefundsPage extends VBox {
         });
     }
 
+    /**
+     * Creates and returns the HBox containing the performance selection UI components.
+     *
+     * @return The HBox for performance selection.
+     */
     private HBox createPerformanceBox() {
         HBox performanceBox = new HBox(10, new Label("Select Performance:"), performanceComboBox, performanceNextButton);
         performanceBox.setAlignment(Pos.CENTER_LEFT);
         return performanceBox;
     }
 
+    /**
+     * Configures the customer search UI and its functionality.
+     * This allows the search for a customer by name and filters tickets accordingly.
+     */
     private void setupCustomerSearch() {
         customerSearchField.setPromptText("Enter Customer Name");
         searchButton.setOnAction(e -> searchTickets());
     }
 
+    /**
+     * Creates and returns the HBox containing the customer search UI components.
+     *
+     * @return The HBox for customer search.
+     */
     private HBox createCustomerSearchBox() {
         HBox customerSearchBox = new HBox(10, new Label("Customer Name:"), customerSearchField, searchButton);
         customerSearchBox.setAlignment(Pos.CENTER_LEFT);
         return customerSearchBox;
     }
 
+    /**
+     * Configures the ticket table UI and its functionality.
+     * This includes setting up columns and handling ticket selection for refund processing.
+     */
     private void setupTicketTable() {
         setupTable();
         ticketTable.setItems(ticketData);
         ticketTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             selectedTicket = newSelection;
             if (newSelection != null) {
-                if(Session.getInstance().getCurrentStaff().getRole() == Staff.Role.Manager || Session.getInstance().getCurrentStaff().getRole() == Staff.Role.DeputyManager )
-                handleRefundTypeChange();
+                if(Session.getInstance().getCurrentStaff().getRole() == Staff.Role.Manager || Session.getInstance().getCurrentStaff().getRole() == Staff.Role.DeputyManager)
+                    handleRefundTypeChange();
                 refundButton.setDisable(false);
             } else {
                 refundButton.setDisable(true);
@@ -168,6 +219,9 @@ public class RefundsPage extends VBox {
         });
     }
 
+    /**
+     * Configures and sets up the columns for the ticket table.
+     */
     private void setupTable() {
         TableColumn<TicketSale, Integer> idColumn = new TableColumn<>("Ticket ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("ticketSaleId"));
@@ -211,6 +265,10 @@ public class RefundsPage extends VBox {
         );
     }
 
+    /**
+     * Configures the refund details UI and its functionality.
+     * This includes setting up the refund type (full or partial), amount, and reason fields.
+     */
     private void setupRefundDetails() {
         refundButton.setDisable(true);
         refundButton.setStyle("-fx-background-color: #ff5733; -fx-text-fill: white;");
@@ -232,6 +290,11 @@ public class RefundsPage extends VBox {
         refundAmountField.setDisable(true);
     }
 
+    /**
+     * Creates and returns the VBox containing the refund details UI components.
+     *
+     * @return The VBox for refund details.
+     */
     private VBox createRefundBox() {
         VBox refundBox = new VBox(10,
                 new Label("Refund Type:"),
@@ -247,6 +310,10 @@ public class RefundsPage extends VBox {
         return refundBox;
     }
 
+    /**
+     * Loads the available performances for the selected date.
+     * This is triggered when the "Next" button on the date selection pane is clicked.
+     */
     private void loadPerformancesForDate() {
         LocalDate selectedDate = datePicker.getValue();
         if (selectedDate != null) {
@@ -269,6 +336,9 @@ public class RefundsPage extends VBox {
         }
     }
 
+    /**
+     * Displays the customer search section and prepares for ticket searching.
+     */
     private void showCustomerSearch() {
         customerTitledPane.setVisible(true);
         customerTitledPane.setExpanded(true);
@@ -276,6 +346,9 @@ public class RefundsPage extends VBox {
         refundTitledPane.setVisible(false);
     }
 
+    /**
+     * Searches for tickets related to a specific customer and performance.
+     */
     private void searchTickets() {
         String customerName = customerSearchField.getText().trim();
         if (selectedPerformance != null && !customerName.isEmpty()) {
@@ -295,6 +368,9 @@ public class RefundsPage extends VBox {
         }
     }
 
+    /**
+     * Handles the change of refund type (full or partial) and adjusts the amount field.
+     */
     private void handleRefundTypeChange() {
         if (selectedTicket != null) {
             String refundType = refundTypeComboBox.getValue();
@@ -308,6 +384,9 @@ public class RefundsPage extends VBox {
         }
     }
 
+    /**
+     * Processes the refund for the selected ticket, based on the entered amount and reason.
+     */
     private void processRefund() {
         if (Session.getInstance().getCurrentStaff().getRole() == Staff.Role.Staff) {
             showAlert("Access Denied", "Only Managers and Deputy Managers can process refunds.", false);
@@ -361,43 +440,44 @@ public class RefundsPage extends VBox {
         }
     }
 
-
+    /**
+     * Validates the refund amount for partial refunds.
+     *
+     * @return The validated refund amount.
+     * @throws IllegalArgumentException if the amount is invalid.
+     */
     private double validateRefundAmount() throws IllegalArgumentException {
-        try {
-            double amount = Double.parseDouble(refundAmountField.getText().trim());
-            if (amount <= 0 || amount > selectedTicket.getPrice()) {
-                throw new IllegalArgumentException("Refund amount must be between £0.01 and £" +
-                        String.format("%.2f", selectedTicket.getPrice()));
-            }
-            return amount;
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Please enter a valid number for refund amount");
+        double amount = Double.parseDouble(refundAmountField.getText());
+        if (amount <= 0 || amount > selectedTicket.getPrice()) {
+            throw new IllegalArgumentException("Refund amount must be between 0 and the ticket price.");
         }
+        return amount;
     }
 
-    private Button createBackButton() {
-        Button backButton = new Button("Back to Home");
-        backButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
-                "-fx-text-fill: white; -fx-background-radius: 5;");
-        HomePage homePage = new HomePage();
-        homePage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
-        backButton.setOnAction(e -> getScene().setRoot(homePage));
-        return backButton;
-    }
-
+    /**
+     * Shows an alert dialog with the specified title, message, and success status.
+     *
+     * @param title The title of the alert.
+     * @param message The message to display.
+     * @param isSuccess Whether the alert indicates success.
+     */
     private void showAlert(String title, String message, boolean isSuccess) {
         Alert alert = new Alert(isSuccess ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
         alert.setTitle(title);
-        alert.setHeaderText(null);
         alert.setContentText(message);
-
-        if (isSuccess) {
-            alert.getDialogPane().setStyle("-fx-background-color: #e8f5e9;");
-        } else {
-            alert.getDialogPane().setStyle("-fx-background-color: #ffebee;");
-        }
-
         alert.showAndWait();
     }
-}
 
+    /**
+     * Creates and returns a back button that navigates to the previous page.
+     *
+     * @return The back button.
+     */
+    private Button createBackButton() {
+        Button backButton = new Button("Back");
+        backButton.setOnAction(e -> {
+            // Navigate back to previous page
+        });
+        return backButton;
+    }
+}

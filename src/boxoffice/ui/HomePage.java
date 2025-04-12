@@ -1,4 +1,3 @@
-
 package boxoffice.ui;
 
 import boxoffice.database.Performance;
@@ -22,9 +21,22 @@ import javafx.scene.layout.Priority;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * The HomePage class represents the main page of the Box Office System.
+ * It provides staff members with the functionality to manage customers, check-in guests, process refunds,
+ * view reports, and manage users (if authorised). It also displays upcoming performances.
+ */
 public class HomePage extends VBox {
+
     private final PerformanceRepository performanceRepository;
 
+    /**
+     * Constructs the HomePage and initialises its components.
+     * <p>
+     * The HomePage includes a logo, title, navigation buttons for managing various functionalities,
+     * and a table displaying upcoming performances. The page adapts according to the role of the current staff member.
+     * </p>
+     */
     public HomePage() {
         this.performanceRepository = new PerformanceRepository();
 
@@ -63,13 +75,13 @@ public class HomePage extends VBox {
         if (Session.getInstance().getCurrentStaff().getRole() == Staff.Role.Staff) {
             refundsButton.setTooltip(new Tooltip("Only Managers can access refunds"));
             refundsButton.setDisable(true);
-        }else{
+        } else {
             refundsButton.setDisable(false);
         }
 
         Button reportsButton = createStyledButton("Reports", () -> showReportsPage());
 
-        buttonLayout.getChildren().addAll(customerButton,guestCheckinButton, refundsButton, reportsButton);
+        buttonLayout.getChildren().addAll(customerButton, guestCheckinButton, refundsButton, reportsButton);
 
         Region gapBetweenButtonsAndTable = new Region();
         VBox.setVgrow(gapBetweenButtonsAndTable, Priority.ALWAYS);
@@ -88,7 +100,7 @@ public class HomePage extends VBox {
         if (Session.getInstance().getCurrentStaff().getRole() == Staff.Role.Staff || Session.getInstance().getCurrentStaff().getRole() == Staff.Role.DeputyManager) {
             manageUsersButton.setTooltip(new Tooltip("Only Managers can access user management"));
             manageUsersButton.setDisable(true);
-        }else{
+        } else {
             manageUsersButton.setDisable(false);
         }
 
@@ -118,11 +130,19 @@ public class HomePage extends VBox {
                 bottomButtons
         );
 
-        // Set VBox properties
+        // Set VBox properties for layout
         this.setAlignment(Pos.TOP_CENTER);
         this.setSpacing(0);
     }
 
+    /**
+     * Creates and returns a VBox containing a table of upcoming performances.
+     * The table is populated with performance data and allows the staff member
+     * to view performance details and book tickets for selected performances.
+     *
+     * @param bookTicketButton The button used to navigate to the ticket sales page.
+     * @return A VBox containing the performance title and the table of performances.
+     */
     private VBox getPerformanceTable(Button bookTicketButton) {
         VBox performanceList = new VBox(10);
         performanceList.setAlignment(Pos.CENTER);
@@ -161,15 +181,14 @@ public class HomePage extends VBox {
         venueColumn.setMinWidth(110);
         venueColumn.setPrefWidth(110);
 
-
         TableColumn<Performance, String> descriptionColumn = new TableColumn<>("Description");
         descriptionColumn.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
         descriptionColumn.setMinWidth(150);
         descriptionColumn.setPrefWidth(332);
 
-
         tableView.getColumns().addAll(nameColumn, dateColumn, timeColumn, durationColumn, venueColumn, descriptionColumn);
 
+        // Populate table with performance data
         try {
             List<Performance> performances = performanceRepository.getAllPerformances();
             tableView.getItems().addAll(performances);
@@ -179,11 +198,12 @@ public class HomePage extends VBox {
             errorLabel.setTextFill(Color.RED);
             performanceList.getChildren().add(errorLabel);
         }
+
         bookTicketButton.setOnAction(event -> {
             Performance selected = tableView.getSelectionModel().getSelectedItem();
             if (selected != null) {
-                if(selected.getVenueID() == 1) {
-                    TicketSalesPage ticketSalesPage = null; // Make sure selected is passed
+                if (selected.getVenueID() == 1) {
+                    TicketSalesPage ticketSalesPage = null;
                     try {
                         ticketSalesPage = new TicketSalesPage(selected);
                         ticketSalesPage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
@@ -191,8 +211,7 @@ public class HomePage extends VBox {
                         throw new RuntimeException(e);
                     }
                     this.getScene().setRoot(ticketSalesPage);
-                }
-                else{
+                } else {
                     TicketSalesPageSmall ticketSalesPageSmall = null;
                     try {
                         ticketSalesPageSmall = new TicketSalesPageSmall(selected);
@@ -211,7 +230,17 @@ public class HomePage extends VBox {
         return performanceList;
     }
 
-
+    /**
+     * Creates a styled button with a given label and action.
+     * <p>
+     * The button is styled with rounded edges, custom font, and gradient colours.
+     * An action is assigned to the button when clicked.
+     * </p>
+     *
+     * @param buttonText The text that appears on the button.
+     * @param action The action to be executed when the button is clicked.
+     * @return A styled Button.
+     */
     private Button createStyledButton(String buttonText, Runnable action) {
         Button button = new Button(buttonText);
         button.setStyle("-fx-font-size: 12px; -fx-padding: 30px; -fx-background-color: linear-gradient(to right, #4CAF50, #81C784); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 50%;");
@@ -227,39 +256,48 @@ public class HomePage extends VBox {
         return button;
     }
 
-    private void showTicketSalesPage() {
-    }
 
+    /**
+     * Navigates to the Guest Check-in page.
+     */
     private void showGuestCheckinPage() {
         GuestCheckInPage guestCheckInPage = new GuestCheckInPage();
         guestCheckInPage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
         this.getScene().setRoot(guestCheckInPage);
     }
 
-    private void showGroupBookingsPage() {
-        GroupBookingsPage groupBookingsPage = new GroupBookingsPage();
-        groupBookingsPage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
-        this.getScene().setRoot(groupBookingsPage);
-    }
-
+    /**
+     * Navigates to the Refunds page.
+     */
     private void showRefundsPage() {
         RefundsPage refundsPage = new RefundsPage();
         refundsPage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
         this.getScene().setRoot(refundsPage);
     }
 
+    /**
+     * Navigates to the Reports page.
+     */
     private void showReportsPage() {
         ReportsPage reportsPage = new ReportsPage();
         reportsPage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
         this.getScene().setRoot(reportsPage);
     }
 
+    /**
+     * Navigates to the User Management page.
+     */
     private void showManageUsersPage() {
         UserManagementPage userManagementPage = new UserManagementPage();
         userManagementPage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");
         this.getScene().setRoot(userManagementPage);
     }
 
+    /**
+     * Navigates to the Customer Management page.
+     *
+     * @throws SQLException If there is an issue with retrieving customer data.
+     */
     private void showManageCustomersPage() throws SQLException {
         CustomerPage customerPage = new CustomerPage();
         customerPage.setStyle("-fx-background-color: linear-gradient(to bottom, #122023 0%, #122023 20%, #468585 100%);");

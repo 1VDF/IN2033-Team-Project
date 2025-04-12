@@ -28,7 +28,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+/**
+ * The ReportsPage class provides a UI for displaying and exporting box office reports.
+ * <p>It allows the user to view reports on ticket sales or revenue in either a pie chart or bar chart format.</p>
+ * <p>The reports can be filtered by different time ranges, and the data can be exported as a CSV file.</p>
+ */
 public class ReportsPage extends VBox {
+
     private Chart currentChart;
     private Text totalText;
     private String currentReportType = "Tickets Sold";
@@ -36,8 +42,10 @@ public class ReportsPage extends VBox {
     private LocalDate currentEndDate = LocalDate.now();
     private String currentChartType = "Pie Chart";
 
+    /**
+     * Constructs a ReportsPage UI with chart controls and report filters.
+     */
     public ReportsPage() {
-
         Image logoImage = new Image("boxoffice/data/lancaster_logo.png");
         ImageView logoView = new ImageView(logoImage);
         logoView.setFitHeight(190);
@@ -55,7 +63,6 @@ public class ReportsPage extends VBox {
         HBox logoContainer = new HBox(logoView);
         logoContainer.setAlignment(Pos.TOP_LEFT);
         logoContainer.setPadding(new Insets(20, 0, 0, 20));
-
 
         ComboBox<String> chartTypeComboBox = new ComboBox<>();
         chartTypeComboBox.getItems().addAll("Pie Chart", "Bar Chart");
@@ -110,10 +117,18 @@ public class ReportsPage extends VBox {
         buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setStyle("-fx-padding: 20px;");
 
-        this.getChildren().addAll(logoContainer,title, comboBoxContainer, chartContainer, totalText, buttonContainer,backButtonHome);
+        this.getChildren().addAll(logoContainer, title, comboBoxContainer, chartContainer, totalText, buttonContainer, backButtonHome);
         this.setAlignment(Pos.CENTER);
     }
 
+    /**
+     * Updates the chart based on selected report type and time range.
+     * <p>This method listens for changes in the report type and time range, updates the start and end dates accordingly,</p>
+     * <p>and generates the appropriate chart (either pie or bar) with the relevant data.</p>
+     *
+     * @param reportTypeComboBox ComboBox containing report types.
+     * @param timeRangeComboBox ComboBox containing time ranges.
+     */
     private void updateChart(ComboBox<String> reportTypeComboBox, ComboBox<String> timeRangeComboBox) {
         currentReportType = reportTypeComboBox.getValue();
         String selectedTimeRange = timeRangeComboBox.getValue();
@@ -169,6 +184,14 @@ public class ReportsPage extends VBox {
         totalText.setText(totalTextContent);
     }
 
+    /**
+     * Creates a BarChart based on daily report data.
+     * <p>This method takes in daily data and creates a bar chart representation of it,</p>
+     * <p>including formatting the x and y axes and adding tooltips for each bar.</p>
+     *
+     * @param dailyData Map containing the data for the bar chart.
+     * @return A BarChart object displaying the daily data.
+     */
     private BarChart<String, Number> createBarChart(Map<String, ? extends Number> dailyData) {
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
@@ -215,6 +238,14 @@ public class ReportsPage extends VBox {
         return barChart;
     }
 
+    /**
+     * Creates a PieChart based on performance report data.
+     * <p>This method generates a pie chart that represents the sales for different performances.</p>
+     * <p>Each segment of the pie chart corresponds to a performance, and the size of the segment is proportional to the sales.</p>
+     *
+     * @param performanceSales Map containing the performance sales data.
+     * @return A PieChart object displaying the performance sales data.
+     */
     private PieChart createPieChart(Map<String, ? extends Number> performanceSales) {
         PieChart pieChart = new PieChart();
         double totalSales = performanceSales.values().stream()
@@ -243,6 +274,12 @@ public class ReportsPage extends VBox {
         return pieChart;
     }
 
+    /**
+     * Creates the export button used to trigger data export.
+     * <p>This button allows the user to export the report data to a CSV file.</p>
+     *
+     * @return A Button object for exporting the report data.
+     */
     private Button createExportButton() {
         Button exportButton = new Button("Export Data");
         exportButton.setStyle("-fx-background-color: #27AE60; -fx-text-fill: white; -fx-font-weight: bold;");
@@ -250,6 +287,10 @@ public class ReportsPage extends VBox {
         return exportButton;
     }
 
+    /**
+     * Exports the current report data to a CSV file.
+     * <p>This method writes the report data to a CSV file based on the selected report type and time range.</p>
+     */
     private void exportDataToCSV() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Report Data");
@@ -310,16 +351,27 @@ public class ReportsPage extends VBox {
         }
     }
 
+    /**
+     * Generates a default filename for the exported CSV file based on the selected report and time range.
+     * <p>This method generates the default filename based on the report type and date range.</p>
+     *
+     * @return The generated default filename for the CSV.
+     */
     private String generateDefaultFilename() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        String dateRange = currentStartDate.equals(currentEndDate)
-                ? currentStartDate.format(formatter)
-                : currentStartDate.format(formatter) + "_" + currentEndDate.format(formatter);
-
-        return "BoxOfficeReport_" + currentReportType.replace(" ", "") + "_" + dateRange + ".csv";
+        String dateRange = currentStartDate.equals(currentEndDate) ?
+                currentStartDate.format(formatter) :
+                currentStartDate.format(formatter) + "_to_" + currentEndDate.format(formatter);
+        return currentReportType.replace(" ", "_") + "_" + dateRange + ".csv";
     }
 
-    public void showAlert(String title, String message) {
+    /**
+     * Shows an alert with a given title and message.
+     *
+     * @param title The title of the alert.
+     * @param message The message to be displayed in the alert.
+     */
+    private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);

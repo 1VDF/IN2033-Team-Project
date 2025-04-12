@@ -6,8 +6,16 @@ import javafx.scene.layout.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The GroupBookingsPage class represents a user interface for creating group bookings in the box office system.
+ * It allows users to input a group name and a list of seat numbers to create a group booking.
+ */
 public class GroupBookingsPage extends VBox {
 
+    /**
+     * Constructs a new GroupBookingsPage and initialises its user interface components.
+     * This includes the title, input fields for group name and seat numbers, and a button to create a group booking.
+     */
     public GroupBookingsPage() {
 
         // Title
@@ -42,7 +50,7 @@ public class GroupBookingsPage extends VBox {
                 seats.add(seat.trim());
             }
 
-            //  confirmation message
+            // Confirmation message
             showConfirmation("Group booking created successfully.");
         });
 
@@ -54,7 +62,11 @@ public class GroupBookingsPage extends VBox {
         this.getChildren().add(layout);
     }
 
-    // Helper method to show error message
+    /**
+     * Displays an error message in an alert dialog box.
+     *
+     * @param message The error message to be displayed
+     */
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
@@ -63,7 +75,11 @@ public class GroupBookingsPage extends VBox {
         alert.showAndWait();
     }
 
-    // Helper method to show confirmation message
+    /**
+     * Displays a confirmation message in an alert dialog box.
+     *
+     * @param message The confirmation message to be displayed
+     */
     private void showConfirmation(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Confirmation");

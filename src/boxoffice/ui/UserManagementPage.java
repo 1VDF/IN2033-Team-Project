@@ -20,11 +20,25 @@ import javafx.scene.text.Text;
 
 import java.sql.SQLException;
 
+/**
+ * Represents the User Management page within the Box Office application.
+ * <p>
+ * This page provides administrative functionality to view, add, and remove staff members.
+ * Data is retrieved and managed through the {@link StaffRepository}.
+ * </p>
+ * <p>
+ * The interface includes a table of staff members and control buttons for interacting with the data.
+ * </p>
+ *
+ */
 public class UserManagementPage extends VBox {
     private final StaffRepository staffRepository;
     private final TableView<Staff> staffTable;
     private final ObservableList<Staff> staffList;
 
+    /**
+     * Constructs a new UserManagementPage instance, setting up the UI and loading staff data.
+     */
     public UserManagementPage() {
         this.staffRepository = new StaffRepository();
         this.staffList = FXCollections.observableArrayList();
@@ -34,6 +48,12 @@ public class UserManagementPage extends VBox {
         loadStaffData();
     }
 
+    /**
+     * Sets up the user interface layout and styling.
+     * <p>
+     * Includes the title, table view for staff, and a set of control buttons for user actions.
+     * </p>
+     */
     private void setupUI() {
         setSpacing(20);
         setPadding(new Insets(20));
@@ -71,6 +91,12 @@ public class UserManagementPage extends VBox {
         getChildren().addAll(title, staffTable, buttonBox);
     }
 
+    /**
+     * Configures the staff table view, including its columns and bindings.
+     * <p>
+     * Columns are mapped to fields in the {@link Staff} class.
+     * </p>
+     */
     private void setupStaffTable() {
         staffTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         staffTable.setPrefHeight(400);
@@ -94,6 +120,12 @@ public class UserManagementPage extends VBox {
         staffTable.setItems(staffList);
     }
 
+    /**
+     * Loads all staff members from the database and displays them in the table.
+     * <p>
+     * Displays an error alert if the data cannot be retrieved.
+     * </p>
+     */
     private void loadStaffData() {
         try {
             staffList.clear();
@@ -103,6 +135,12 @@ public class UserManagementPage extends VBox {
         }
     }
 
+    /**
+     * Opens a dialog for entering new staff details.
+     * <p>
+     * If confirmed, the staff member is added to the database and the list is refreshed.
+     * </p>
+     */
     private void showAddUserDialog() {
         Dialog<Staff> dialog = new Dialog<>();
         dialog.setTitle("Add New User");
@@ -127,7 +165,6 @@ public class UserManagementPage extends VBox {
         ComboBox<Staff.Role> roleCombo = new ComboBox<>();
         roleCombo.getItems().addAll(Staff.Role.values());
         roleCombo.setValue(Staff.Role.Staff);
-
 
         grid.add(new Label("First Name:"), 0, 0);
         grid.add(firstNameField, 1, 0);
@@ -167,6 +204,12 @@ public class UserManagementPage extends VBox {
         });
     }
 
+    /**
+     * Deletes the selected user from the system after confirmation.
+     * <p>
+     * Prevents the deletion of the currently logged-in staff member.
+     * </p>
+     */
     private void deleteSelectedUser() {
         Staff selected = staffTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
@@ -197,6 +240,13 @@ public class UserManagementPage extends VBox {
         });
     }
 
+    /**
+     * Displays an alert with the given title, message, and alert type.
+     *
+     * @param title   the title of the alert window
+     * @param message the main message to be displayed
+     * @param type    the style/type of the alert
+     */
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

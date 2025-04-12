@@ -21,21 +21,40 @@ import javafx.scene.paint.Color;
 import java.sql.SQLException;
 import java.util.List;
 
-public class CustomerPage extends VBox{
+/**
+ * The CustomerPage class provides a user interface for managing customer details in the box office system.
+ * It allows users to view, search, filter, and add customers, as well as display a list of customers
+ * who are friends of Lancaster.
+ */
+public class CustomerPage extends VBox {
+
     private TableView<Customer> customerTable;
     private ObservableList<Customer> customerData;
     private CustomerRepository customerRepo = new CustomerRepository();
     private FOLRepository folRepo = new FOLRepository();
     private CheckBox folCheckBox;
     private TextField searchField;
+
+    /**
+     * Constructs a new CustomerPage and initialises the user interface components.
+     * It loads the customer data from the database.
+     *
+     * @throws SQLException if there is an error loading customer data from the database
+     */
     CustomerPage() throws SQLException {
         initializeUI();
         loadData();
     }
+
+    /**
+     * Initialises the user interface components of the CustomerPage.
+     * This includes setting up the logo, title, search field, customer table, and buttons.
+     */
     private void initializeUI() {
         this.setPadding(new Insets(20));
         this.setSpacing(20);
 
+        // Setting up the logo
         Image logoImage = new Image("boxoffice/data/lancaster_logo.png");
         ImageView logoView = new ImageView(logoImage);
         logoView.setFitHeight(150);
@@ -49,7 +68,6 @@ public class CustomerPage extends VBox{
         Label title = new Label("Customer Management");
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;-fx-text-fill: white;");
         title.setAlignment(Pos.TOP_LEFT);
-
         DropShadow shadow = new DropShadow(10, Color.GRAY);
         title.setEffect(shadow);
 
@@ -93,6 +111,7 @@ public class CustomerPage extends VBox{
                 throw new RuntimeException(e);
             }
         });
+
         Button addButton = new Button("Add Customer");
         addButton.setStyle("-fx-font-size: 16px; -fx-padding: 10 20; -fx-background-color: #2ecc40; " +
                 "-fx-text-fill: white; -fx-background-radius: 5;");
@@ -110,16 +129,26 @@ public class CustomerPage extends VBox{
             this.getScene().setRoot(homePage);
         });
 
-        HBox bottomBox = new HBox(940,addButton,backButton);
+        HBox bottomBox = new HBox(940, addButton, backButton);
 
-        this.getChildren().addAll(logoContainer,title, topBox, customerTable,bottomBox);
+        this.getChildren().addAll(logoContainer, title, topBox, customerTable, bottomBox);
     }
 
+    /**
+     * Loads customer data from the database and populates the customer table.
+     *
+     * @throws SQLException if there is an error retrieving customer data from the database
+     */
     private void loadData() throws SQLException {
         customerData = FXCollections.observableArrayList(customerRepo.getAllCustomers());
         customerTable.setItems(customerData);
     }
 
+    /**
+     * Filters the displayed customer data based on the search query and the "Friends of Lancaster" checkbox.
+     *
+     * @throws SQLException if there is an error filtering the customer data from the database
+     */
     private void filterData() throws SQLException {
         String searchText = searchField.getText().toLowerCase();
         boolean folOnly = folCheckBox.isSelected();
@@ -144,6 +173,10 @@ public class CustomerPage extends VBox{
         customerTable.setItems(filteredData);
     }
 
+    /**
+     * Displays a dialog for adding a new customer.
+     * The dialog allows the user to input the customer's ID, name, phone number, and email address.
+     */
     private void showAddCustomerDialog() {
         Dialog<Customer> dialog = new Dialog<>();
         dialog.setTitle("Add New Customer");

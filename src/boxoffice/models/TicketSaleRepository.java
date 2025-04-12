@@ -11,9 +11,23 @@ import java.util.Set;
 
 import static java.sql.Types.NULL;
 
+/**
+ * The TicketSaleRepository class provides methods for interacting with ticket sales data in the database.
+ * It includes operations for adding, updating, and fetching ticket sales records, managing refunds and check-ins,
+ * and retrieving booking information such as booked seats.
+ */
 public class TicketSaleRepository {
 
-    // Add new ticket sale record to the database
+    /**
+     * Adds a new ticket sale record to the database.
+     *
+     * This method inserts a new record into the `ticket_sale` table using the details of the given
+     * TicketSale object. The method handles nullable fields, such as discount ID and group booking ID.
+     *
+     * @param ticket The TicketSale object containing the details of the ticket sale to be added.
+     * @return A boolean indicating whether the insert was successful (true if successful).
+     * @throws SQLException If a database access error occurs.
+     */
     public static boolean addTicketSale(TicketSale ticket) throws SQLException {
         String sql = "INSERT INTO `ticket_sale` (ticket_sale_id, price, customer_id, performance_id, seat_id, discount_id, group_id, staff_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -47,7 +61,16 @@ public class TicketSaleRepository {
         }
     }
 
-    // Fetch a TicketSale by its ID (returns a TicketSale object)
+    /**
+     * Retrieves a TicketSale object by its ID.
+     *
+     * This method queries the `ticket_sale` table for a ticket sale with the specified ID and returns
+     * the corresponding TicketSale object. If no matching ticket sale is found, it returns null.
+     *
+     * @param ticketSaleId The ID of the ticket sale to retrieve.
+     * @return The TicketSale object corresponding to the given ticketSaleId, or null if not found.
+     * @throws SQLException If a database access error occurs.
+     */
     public static TicketSale getTicketSaleById(String ticketSaleId) throws SQLException {
         String query = "SELECT * FROM ticket_sale WHERE ticket_sale_id = ?";
 
@@ -73,7 +96,16 @@ public class TicketSaleRepository {
         }
     }
 
-    // Mark ticket as refunded
+    /**
+     * Marks a ticket as refunded.
+     *
+     * This method updates the `ticket_sale` table to mark the ticket with the given ID as refunded.
+     * It sets the `refunded` column to true for the specified ticketSaleId.
+     *
+     * @param ticketSaleId The ID of the ticket sale to be marked as refunded.
+     * @return A boolean indicating whether the update was successful (true if successful).
+     * @throws SQLException If a database access error occurs.
+     */
     public static boolean markAsRefunded(int ticketSaleId) throws SQLException {
         String sql = "UPDATE ticket_sale SET refunded = TRUE WHERE ticket_sale_id = ?";
 
@@ -86,6 +118,16 @@ public class TicketSaleRepository {
         }
     }
 
+    /**
+     * Retrieves the set of booked seats for a specific performance.
+     *
+     * This method queries the `ticket_sale` table to retrieve the seat IDs that have been booked for
+     * the specified performance. It returns a set of seat IDs.
+     *
+     * @param performanceId The ID of the performance for which to retrieve booked seats.
+     * @return A set of seat IDs that have been booked for the specified performance.
+     * @throws SQLException If a database access error occurs.
+     */
     public static Set<String> getBookedSeats(int performanceId) throws SQLException {
         Set<String> bookedSeats = new HashSet<>();
         String sql = "SELECT seat_id FROM ticket_sale WHERE performance_id = ?";
@@ -101,7 +143,17 @@ public class TicketSaleRepository {
         return bookedSeats;
     }
 
-
+    /**
+     * Retrieves a list of tickets for refund based on performance ID and customer name.
+     *
+     * This method retrieves all tickets for a specific performance and customer name that have not yet been refunded.
+     * The tickets are returned as a list of TicketSale objects.
+     *
+     * @param performanceId The ID of the performance to filter tickets by.
+     * @param customerName The name of the customer to filter tickets by.
+     * @return A list of TicketSale objects that match the specified criteria.
+     * @throws SQLException If a database access error occurs.
+     */
     public static List<TicketSale> getTicketsForRefund(int performanceId, String customerName) throws SQLException {
         List<TicketSale> tickets = new ArrayList<>();
         String query = "SELECT ts.* FROM ticket_sale ts " +
@@ -134,6 +186,16 @@ public class TicketSaleRepository {
         return tickets;
     }
 
+    /**
+     * Retrieves the timestamp of when a ticket sale occurred.
+     *
+     * This method retrieves the sale date of the ticket sale record identified by the provided ticketSaleId.
+     * It returns a Timestamp object representing the date and time the sale occurred.
+     *
+     * @param ticketSaleId The ID of the ticket sale to retrieve the timestamp for.
+     * @return A Timestamp representing the sale date, or null if not found.
+     * @throws SQLException If a database access error occurs.
+     */
     public static Timestamp getSaleTimestamp(int ticketSaleId) throws SQLException {
         String query = "SELECT sale_date FROM ticket_sale WHERE ticket_sale_id = ?";
         try (Connection conn = DriverManager.getConnection(DBConnection.url, DBConnection.user, DBConnection.pass);
@@ -144,6 +206,16 @@ public class TicketSaleRepository {
         }
     }
 
+    /**
+     * Marks a ticket as checked in.
+     *
+     * This method updates the `ticket_sale` table to mark the ticket with the given ID as checked in.
+     * It sets the `checked_in` column to true for the specified ticketSaleId.
+     *
+     * @param ticketSaleId The ID of the ticket sale to be marked as checked in.
+     * @return A boolean indicating whether the update was successful (true if successful).
+     * @throws SQLException If a database access error occurs.
+     */
     public static boolean markAsCheckedIn(int ticketSaleId) throws SQLException {
         String sql = "UPDATE ticket_sale SET checked_in = TRUE WHERE ticket_sale_id = ?";
 
@@ -156,6 +228,16 @@ public class TicketSaleRepository {
         }
     }
 
+    /**
+     * Retrieves a list of tickets sold to a specific customer that have not been checked in.
+     *
+     * This method retrieves all tickets for a specific customer (identified by their name) that
+     * have not yet been checked in. It returns a list of TicketSale objects.
+     *
+     * @param customerName The name of the customer to filter tickets by.
+     * @return A list of TicketSale objects for the specified customer that have not been checked in.
+     * @throws SQLException If a database access error occurs.
+     */
     public static List<TicketSale> getTicketsByCustomerName(String customerName) throws SQLException {
         List<TicketSale> tickets = new ArrayList<>();
         String query = "SELECT ts.* FROM ticket_sale ts " +
@@ -187,4 +269,3 @@ public class TicketSaleRepository {
         return tickets;
     }
 }
-

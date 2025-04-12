@@ -1,14 +1,25 @@
 package boxoffice.models;
 
 import boxoffice.database.DBConnection;
+
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Repository class that provides various methods to generate reports based on ticket sales and revenue.
+ * All methods interact with the 'ticket_sale' and 'performance' tables.
+ */
 public class ReportsRepository {
 
-    // Method for getting ticket sales by performance within a date range (excluding refunded)
+    /**
+     * Retrieves ticket sales by performance within a given date range, excluding refunded sales.
+     *
+     * @param startDate The start date of the date range.
+     * @param endDate The end date of the date range.
+     * @return A map with performance titles as keys and sales counts as values.
+     */
     public static Map<String, Integer> getTicketSalesByPerformanceForDateRange(LocalDate startDate, LocalDate endDate) {
         if (endDate == null) {
             endDate = LocalDate.now();
@@ -41,7 +52,13 @@ public class ReportsRepository {
         return salesData;
     }
 
-    // Method for getting revenue by performance within a date range (excluding refunded)
+    /**
+     * Retrieves revenue by performance within a given date range, excluding refunded sales.
+     *
+     * @param startDate The start date of the date range.
+     * @param endDate The end date of the date range.
+     * @return A map with performance titles as keys and revenue amounts as values.
+     */
     public static Map<String, Double> getRevenueByPerformanceForDateRange(LocalDate startDate, LocalDate endDate) {
         if (endDate == null) {
             endDate = LocalDate.now();
@@ -74,7 +91,13 @@ public class ReportsRepository {
         return revenueData;
     }
 
-
+    /**
+     * Retrieves daily ticket sales within a given date range, excluding refunded sales.
+     *
+     * @param startDate The start date of the date range.
+     * @param endDate The end date of the date range.
+     * @return A map with dates as keys and sales counts as values.
+     */
     public static Map<String, Integer> getDailyTicketSales(LocalDate startDate, LocalDate endDate) {
         Map<String, Integer> dailySales = new LinkedHashMap<>();
         String query = "SELECT DATE(sale_date) AS sale_date, COUNT(ticket_sale_id) AS sales " +
@@ -112,6 +135,13 @@ public class ReportsRepository {
         return dailySales;
     }
 
+    /**
+     * Retrieves daily revenue within a given date range, excluding refunded sales.
+     *
+     * @param startDate The start date of the date range.
+     * @param endDate The end date of the date range.
+     * @return A map with dates as keys and revenue amounts as values.
+     */
     public static Map<String, Double> getDailyRevenue(LocalDate startDate, LocalDate endDate) {
         Map<String, Double> dailyRevenue = new LinkedHashMap<>();
         String query = "SELECT DATE(sale_date) AS sale_date, SUM(price) AS revenue " +
@@ -149,5 +179,3 @@ public class ReportsRepository {
         return dailyRevenue;
     }
 }
-
-

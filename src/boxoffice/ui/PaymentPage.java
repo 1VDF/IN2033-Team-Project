@@ -20,13 +20,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.sql.Types.NULL;
 
+/**
+ * This class represents the payment page for processing ticket payments in the box office system.
+ * It allows the user to select a payment method, enter discount codes or gift card codes,
+ * and process payments for selected seats in a performance.
+ */
 public class PaymentPage {
 
     private static Set<String> wheelchairAdjacentSeatIds = new HashSet<>();
-
     static double price = 25;
 
-
+    /**
+     * Processes the payment for the selected seats, showing the payment dialog and confirming the payment.
+     *
+     * @param owner The owner window that owns the payment dialog.
+     * @param selectedSeats A list of seats selected by the customer.
+     * @param customerId The ID of the customer making the payment.
+     * @param customerName The name of the customer making the payment.
+     * @param selectedPerformance The performance for which the payment is being made.
+     * @return {@code true} if the payment was successfully processed, otherwise {@code false}.
+     * @throws SQLException If there is an issue with the database interaction.
+     */
     public static boolean processPayment(Stage owner, List<Seat> selectedSeats, String customerId, String customerName,
                                          Performance selectedPerformance) throws SQLException {
         List<Seat> allSeats = SeatRepository.getAllSeatsFromMainHall();
@@ -152,6 +166,15 @@ public class PaymentPage {
         return paymentSuccess.get();
     }
 
+    /**
+     * Calculates the total amount to be paid for the selected seats, considering any applicable discounts.
+     *
+     * @param selectedSeats A list of seats selected by the customer.
+     * @param allSeats A list of all available seats in the main hall.
+     * @param discountName The discount code entered by the customer (if any).
+     * @return The total amount to be paid.
+     * @throws SQLException If there is an issue with the database interaction.
+     */
     private static double calculateTotalAmount(List<Seat> selectedSeats, List<Seat> allSeats, String discountName) throws SQLException {
         double total = 0;
         Set<String> processedCompanionSeats = new HashSet<>();
@@ -164,11 +187,11 @@ public class PaymentPage {
 
             List<String> partialRestrictedSeats = RestrictedRepository.getPartialRestrictedSeats();
 
-                if(partialRestrictedSeats.contains(seat.getSeatID())){
-                    price = 21;
-                }else{
-                    price = 25;
-                }
+            if(partialRestrictedSeats.contains(seat.getSeatID())){
+                price = 21;
+            }else{
+                price = 25;
+            }
 
             double finalPrice = applyDiscount(price, discountId);
 
@@ -190,6 +213,16 @@ public class PaymentPage {
         return total;
     }
 
+    /**
+     * Creates the ticket sales entries in the database for the selected seats and processes the payment.
+     *
+     * @param selectedSeats A list of seats selected by the customer.
+     * @param allSeats A list of all available seats in the main hall.
+     * @param customerId The ID of the customer making the payment.
+     * @param performance The performance for which the payment is being made.
+     * @param discountName The discount code entered by the customer (if any).
+     * @throws Exception If an error occurs while creating the ticket sales.
+     */
     private static void createTicketSales(List<Seat> selectedSeats, List<Seat> allSeats, String customerId,
                                           Performance performance, String discountName) throws Exception {
         Set<String> processedCompanionSeats = new HashSet<>();
@@ -243,8 +276,8 @@ public class PaymentPage {
                 processedCompanionSeats.add(companionSeatId);
             } else {
                 TicketSale ticket = new TicketSale(
-                        0, // auto-generated ID
-                        finalPrice, // normal price
+                        0,
+                        finalPrice,
                         customerId,
                         performance.getPerformanceId(),
                         seat.getSeatID(),
@@ -257,6 +290,13 @@ public class PaymentPage {
         }
     }
 
+    /**
+     * Retrieves the ID of the adjacent seat for a given seat.
+     *
+     * @param seatId The ID of the seat for which to find the adjacent seat.
+     * @param allSeats A list of all available seats in the main hall.
+     * @return The ID of the adjacent seat, or {@code null} if no adjacent seat exists.
+     */
     private static String getAdjacentSeatId(String seatId, List<Seat> allSeats) {
         try {
             String prefix = seatId.substring(0, 3);
@@ -286,6 +326,13 @@ public class PaymentPage {
         }
     }
 
+    /**
+     * Retrieves the discount ID for the given discount code.
+     *
+     * @param discountName The discount code entered by the customer.
+     * @return The discount ID, or {@code null} if no valid discount is found.
+     * @throws SQLException If there is an issue with the database interaction.
+     */
     private static Integer getDiscountIdByCode(String discountName) throws SQLException {
         if (discountName == null) {
             return null;
@@ -293,6 +340,14 @@ public class PaymentPage {
         return DiscountRepository.getDiscountIdByName(discountName);
     }
 
+    /**
+     * Applies the discount to the original price of a seat.
+     *
+     * @param originalPrice The original price of the seat.
+     * @param discountId The ID of the discount to be applied.
+     * @return The final price after the discount is applied.
+     * @throws SQLException If there is an issue with the database interaction.
+     */
     private static double applyDiscount(double originalPrice, Integer discountId) throws SQLException {
         if (discountId == null) {
             return originalPrice;
@@ -300,5 +355,4 @@ public class PaymentPage {
         double discountValue = DiscountRepository.getDiscountValueById(discountId);
         return originalPrice * (1 - discountValue/100);
     }
-
 }

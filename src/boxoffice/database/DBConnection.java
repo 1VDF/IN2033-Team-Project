@@ -30,16 +30,16 @@ public interface DBConnection {
     /**
      * URL for local phpMyAdmin MySQL database.
      */
-    String url = "jdbc:mysql://sst-stuproj.city.ac.uk/in2033t25";
+    String url = "jdbc:mysql://localhost:3306/in2033t25.2";
 
     /**
      * Username for local MySQL database (default is 'root').
      */
-    String user = "in2033t25_a";
+    String user = "root";
 
     /**
      * Password for local MySQL database (default is empty).
      */
-    String pass = "UpCB1Q2vA4I";
+    String pass = "";
 }
 

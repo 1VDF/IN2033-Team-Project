@@ -1,7 +1,5 @@
 package operations.implementation;
 
-import boxoffice.database.DBConnection;
-import boxoffice.database.Performance;
 import boxoffice.database.TicketSale;
 
 import java.sql.*;
@@ -10,7 +8,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implements data access methods for the Operations team to retrieve
+ * ticket sales and revenue data from the database.
+ * <p>
+ * This class is used internally by {@link JDBC} to perform SQL queries
+ * against the ticketing database.
+ * </p>
+ *
+ * <p>All queries use prepared statements to prevent SQL injection.</p>
+ *
+ */
 public class OperationsAccessImplementation {
+
+    /**
+     * Retrieves all ticket sales associated with a specific performance.
+     *
+     * @param connection      the active SQL connection.
+     * @param performanceName the title of the performance.
+     * @return a list of {@link TicketSale} objects.
+     * @throws SQLException if a database error occurs.
+     */
     public List<TicketSale> getTicketSalesBasedOnEvent(Connection connection, String performanceName) throws SQLException {
         List<TicketSale> ticketSales = new ArrayList<>();
 
@@ -20,7 +38,6 @@ public class OperationsAccessImplementation {
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, performanceName);
-
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -41,9 +58,15 @@ public class OperationsAccessImplementation {
         return ticketSales;
     }
 
+    /**
+     * Retrieves all ticket sales in the system.
+     *
+     * @param connection the active SQL connection.
+     * @return a list of {@link TicketSale} objects.
+     * @throws SQLException if a database error occurs.
+     */
     public List<TicketSale> getAllTicketSales(Connection connection) throws SQLException {
         List<TicketSale> ticketSales = new ArrayList<>();
-
         String query = "SELECT * FROM ticket_sale";
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -67,22 +90,26 @@ public class OperationsAccessImplementation {
         return ticketSales;
     }
 
+    /**
+     * Calculates total revenue from ticket sales for a specific performance.
+     *
+     * @param connection      the active SQL connection.
+     * @param performanceName the title of the performance.
+     * @return the total revenue, or -1 if an error occurs.
+     */
     public int getRevenueBasedOnEvent(Connection connection, String performanceName) {
         int totalRevenue = 0;
-
         String query = "SELECT ts.price FROM ticket_sale ts " +
                 "JOIN performance p ON ts.performance_id = p.performance_id " +
                 "WHERE p.title = ? AND ts.price > 0";
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-
             stmt.setString(1, performanceName);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 totalRevenue += rs.getDouble("price");
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
             return -1;
@@ -91,9 +118,14 @@ public class OperationsAccessImplementation {
         return totalRevenue;
     }
 
+    /**
+     * Retrieves the total revenue from all ticket sales.
+     *
+     * @param connection the active SQL connection.
+     * @return the total revenue, or -1 if an error occurs.
+     */
     public int getTotalRevenue(Connection connection) {
         int totalRevenue = 0;
-
         String query = "SELECT price FROM ticket_sale WHERE price > 0";
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -111,6 +143,21 @@ public class OperationsAccessImplementation {
         return totalRevenue;
     }
 
+    /**
+     * Generates a revenue report for a specific month and year.
+     *
+     * @param connection the active SQL connection.
+     * @param year       the year to filter.
+     * @param month      the month to filter (1–12).
+     * @return a map containing:
+     *         <ul>
+     *           <li>{@code "revenue"} - total revenue (Double)</li>
+     *           <li>{@code "tickets_sold"} - number of tickets sold (Integer)</li>
+     *           <li>{@code "first_sale"} - timestamp of the first sale (Timestamp)</li>
+     *           <li>{@code "last_sale"} - timestamp of the last sale (Timestamp)</li>
+     *         </ul>
+     * @throws SQLException if a database access error occurs.
+     */
     public Map<String, Object> getMonthlyRevenueReport(Connection connection, int year, int month) throws SQLException {
         Map<String, Object> report = new HashMap<>();
 
@@ -125,7 +172,6 @@ public class OperationsAccessImplementation {
                 "AND MONTH(sale_date) = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-
             stmt.setInt(1, year);
             stmt.setInt(2, month);
 
@@ -138,6 +184,7 @@ public class OperationsAccessImplementation {
                 report.put("last_sale", rs.getTimestamp("last_sale"));
             }
         }
+
         return report;
     }
 }

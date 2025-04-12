@@ -18,9 +18,22 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+/**
+ * This class handles the receipt page for displaying booking details and confirming the booking.
+ */
 public class ReceiptPage {
 
-    public static boolean showReceipt(Stage owner, List<Seat> selectedSeats, String customerName,double totalAmount, Set<String> wheelchairAdjacentSeatIds) {
+    /**
+     * Displays the booking receipt for the selected seats and allows the user to confirm or cancel the booking.
+     *
+     * @param owner The owner window that owns the receipt dialog.
+     * @param selectedSeats The list of selected seats for the booking.
+     * @param customerName The name of the customer making the booking.
+     * @param totalAmount The total amount for the booking.
+     * @param wheelchairAdjacentSeatIds A set of wheelchair-adjacent seat IDs.
+     * @return {@code true} if the user confirmed the booking, {@code false} if they cancelled it.
+     */
+    public static boolean showReceipt(Stage owner, List<Seat> selectedSeats, String customerName, double totalAmount, Set<String> wheelchairAdjacentSeatIds) {
         List<Seat> accessibilitySeats = selectedSeats.stream()
                 .filter(Seat::isAccesible)
                 .collect(Collectors.toList());
@@ -110,5 +123,4 @@ public class ReceiptPage {
 
         return isConfirmed.get();
     }
-
 }

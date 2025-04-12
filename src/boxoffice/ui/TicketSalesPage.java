@@ -29,6 +29,28 @@ import javafx.geometry.Insets;
 import java.sql.SQLException;
 import java.util.*;
 
+/**
+ * The main ticket sales interface for the box office system.
+ *
+ * <p>This class provides a graphical interface for:
+ * <ul>
+ *   <li>Viewing and selecting seats for a performance</li>
+ *   <li>Managing wheelchair accessible seating with companion seats</li>
+ *   <li>Handling seat restrictions (full and partial)</li>
+ *   <li>Processing customer information and bookings</li>
+ * </ul>
+ *
+ * <p>The interface displays both balcony and stalls seating areas with visual indicators:
+ * <ul>
+ *   <li> Red: Booked seats</li>
+ *   <li> Green: Selected seats</li>
+ *   <li> Blue: Wheelchair accessible seats</li>
+ *   <li>Orange: Fully restricted seats</li>
+ *   <li>Yellow: Partially restricted seats</li>
+ *   <li>Gray: Available standard seats</li>
+ * </ul>
+ */
+
 public class TicketSalesPage extends VBox {
     private Performance selectedPerformance;
     private ObservableList<Seat> selectedSeats = FXCollections.observableArrayList();
@@ -40,12 +62,28 @@ public class TicketSalesPage extends VBox {
     private boolean isRestrictedManagementMode = false;
     private final Set<String> fullRestrictedSeats = new HashSet<>();
     private final Set<String> partialRestrictedSeats = new HashSet<>();
+
+    /**
+     * Constructs a new TicketSalesPage for the specified performance.
+     *
+     * @param performance the performance to sell tickets for
+     * @throws SQLException if there's an error loading seat data from the database
+     */
     public TicketSalesPage(Performance performance) throws SQLException {
         this.selectedPerformance = performance;
         initializeUI();
         updateAllSeatColors();
     }
 
+    /**
+     * Initializes the user interface components including:
+     * <ul>
+     *   <li>Seat layout visualization for both balcony and stalls</li>
+     *   <li>Restriction management controls</li>
+     *   <li>Booking confirmation system</li>
+     *   <li>Visual key for seat statuses</li>
+     * </ul>
+     */
     public void initializeUI(){
         try {
             Map<String, String> restrictedSeats = RestrictedRepository.getRestrictedSeats(selectedPerformance.getPerformanceId());
@@ -316,6 +354,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the CC balcony seats.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createCCBalconySeats(Pane pane) {
         // Balcony seats (Cc 1-8)
         double startX = 375; // Adjust these values based on your actual image
@@ -353,6 +396,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the first section of BB balcony seats (seats 1-5).
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createBBBalconySeatsV1(Pane pane) {
         // Balcony seats (BB 6 - 23)
         double startX = 60; // Adjust these values based on your actual image
@@ -389,6 +437,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the second section of BB balcony seats (seats 6-23).
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createBBBalconySeatsV2(Pane pane){
         // Balcony seats (BB 6 - 23)
         double startX = 75; // Adjust these values based on your actual image
@@ -425,6 +478,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the third section of BB balcony seats (seats 24-28).
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createBBBalconySeatsV3(Pane pane) {
         // Balcony seats (BB 6 - 23)
         double startX = 880; // Adjust these values based on your actual image
@@ -461,6 +519,12 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+
+    /**
+     * Creates and configures the first section of AA balcony seats (seats 1-20).
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createAABalconySeatsV1(Pane pane) {
         // Balcony seats (BB 6 - 23)
         double startX = 100; // Adjust these values based on your actual image
@@ -497,6 +561,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the second section of AA balcony seats (seats 21-33).
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createAABalconySeatsV2(Pane pane){
         // Balcony seats (AA 21 - 33)
         double startX = -300; // Adjust these values based on your actual image
@@ -533,6 +602,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the third section of AA balcony seats (seats 34-53).
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createAABalconySeatsV3(Pane pane) {
         // Balcony seats (BB 6 - 23)
         double startX = 840; // Adjust these values based on your actual image
@@ -568,6 +642,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row Q.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowQ(Pane pane) {
         // (Stall seats - Row Q)
         double startX = 340; // Adjust these values based on your actual image
@@ -607,6 +686,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row P.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowP(Pane pane) {
         // (Stall seats - Row P)
         double startX = 330; // Adjust these values based on your actual image
@@ -646,6 +730,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row O.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowO(Pane pane) {
         // (Stall seats - Row O)
         double startX = 180; // Adjust these values based on your actual image
@@ -685,6 +774,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row N.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowN(Pane pane) {
         // (Stall seats - Row Q)
         double startX = 200; // Adjust these values based on your actual image
@@ -724,6 +818,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row M.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowM(Pane pane) {
         // (Stall seats - Row M)
         double startX = 240; // Adjust these values based on your actual image
@@ -763,6 +862,12 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row L.
+     *
+     * @param pane the parent pane to add seats to
+     */
+
     private void createStallsSeatsRowL(Pane pane) {
         // (Stall seats - Row L)
         double startX = 200; // Adjust these values based on your actual image
@@ -798,6 +903,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row K.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowK(Pane pane) {
         // (Stall seats - Row L)
         double startX = 200; // Adjust these values based on your actual image
@@ -836,6 +946,12 @@ public class TicketSalesPage extends VBox {
             pane.getChildren().add(seat);
         }
     }
+
+    /**
+     * Creates and configures the stalls seats for row J.
+     *
+     * @param pane the parent pane to add seats to
+     */
 
     private void createStallsSeatsRowJ(Pane pane) {
         // (Stall seats - Row L)
@@ -876,6 +992,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row H.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowH(Pane pane) {
         // (Stall seats - Row L)
         double startX = 200; // Adjust these values based on your actual image
@@ -917,6 +1038,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row G.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowG(Pane pane) {
         // (Stall seats - Row L)
         double startX = 200; // Adjust these values based on your actual image
@@ -958,6 +1084,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row F.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowF(Pane pane) {
         // (Stall seats - Row L)
         double startX = 200; // Adjust these values based on your actual image
@@ -996,6 +1127,12 @@ public class TicketSalesPage extends VBox {
             pane.getChildren().add(seat);
         }
     }
+
+    /**
+     * Creates and configures the stalls seats for row E.
+     *
+     * @param pane the parent pane to add seats to
+     */
 
     private void createStallsSeatsRowE(Pane pane) {
         // (Stall seats - Row L)
@@ -1036,6 +1173,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row D.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowD(Pane pane) {
         // (Stall seats - Row L)
         double startX = 200; // Adjust these values based on your actual image
@@ -1075,6 +1217,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row C.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowC(Pane pane) {
         // (Stall seats - Row L)
         double startX = 200; // Adjust these values based on your actual image
@@ -1114,6 +1261,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row B.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowB(Pane pane) {
         // (Stall seats - Row L)
         double startX = 200; // Adjust these values based on your actual image
@@ -1153,6 +1305,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Creates and configures the stalls seats for row A.
+     *
+     * @param pane the parent pane to add seats to
+     */
     private void createStallsSeatsRowA(Pane pane) {
         // (Stall seats - Row L)
         double startX = 200; // Adjust these values based on your actual image
@@ -1188,6 +1345,13 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Handles seat selection/deselection based on current mode.
+     * In normal mode, selects seats for booking.
+     * In management mode, applies/removes seat restrictions.
+     *
+     * @param seat the seat button that was clicked
+     */
     private void handleSeatSelection(Button seat) {
         Object data = seat.getUserData();
         if (data instanceof String) {
@@ -1246,6 +1410,12 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Determines if a seat is marked as a companion to a wheelchair space.
+     *
+     * @param seatId the seat ID to check
+     * @return true if the seat is a companion seat, false otherwise
+     */
     private boolean isCompanionSeat(String seatId) {
         return selectedSeats.stream()
                 .anyMatch(s -> s.isAccesible() &&
@@ -1253,6 +1423,14 @@ public class TicketSalesPage extends VBox {
                         getAdjacentSeatId(s.getSeatID(), getAllSeatsInVenue()).equals(seatId));
     }
 
+    /**
+     * Shows confirmation dialog for selecting an accessible seat.
+     *
+     * @param seat the seat button being selected
+     * @param row the row of the seat
+     * @param seatNumber the seat number
+     * @param seatId the full seat ID
+     */
     private void showAccessibleSeatConfirmation(Button seat, String row, int seatNumber, String seatId) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Accessible Seat");
@@ -1268,6 +1446,11 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Validates the current seat selection against business rules.
+     *
+     * @return true if selection is valid (within limits), false otherwise
+     */
     public boolean validateSeatSelection() {
         long regularSeatCount = selectedSeats.stream().filter(s -> !isCompanionSeat(s.getSeatID())).count();
         if (regularSeatCount > maxSeatsSelectable) {
@@ -1285,6 +1468,14 @@ public class TicketSalesPage extends VBox {
         return true;
     }
 
+    /**
+     * Selects an accessible seat and its adjacent companion seat.
+     *
+     * @param seat the accessible seat button
+     * @param row the row of the seat
+     * @param seatNumber the seat number
+     * @param seatId the full seat ID
+     */
     private void selectAccessibleSeatWithAdjacent(Button seat, String row, int seatNumber, String seatId) {
         // Add the accessible seat
         selectedSeats.add(new Seat(seatId, row, seatNumber, true));
@@ -1322,6 +1513,13 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Finds the adjacent seat ID for a given seat.
+     *
+     * @param seatId the seat ID to find adjacent for
+     * @param allSeats list of all seats in the venue
+     * @return adjacent seat ID or null if none exists
+     */
     private String getAdjacentSeatId(String seatId, List<Seat> allSeats) {
         try {
             String prefix = seatId.substring(0, 2);
@@ -1356,6 +1554,15 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Finds an available adjacent seat for wheelchair companion.
+     *
+     * @param seatId the seat ID to find adjacent for
+     * @param allSeats list of all seats in the venue
+     * @param bookedSeatIds set of booked seat IDs
+     * @param currentlySelectedSeats list of currently selected seats
+     * @return available adjacent seat ID or null if none available
+     */
     private String findAvailableAdjacentSeat(String seatId, List<Seat> allSeats, Set<String> bookedSeatIds, List<Seat> currentlySelectedSeats) {
         try {
             String prefix = seatId.substring(0, 2);
@@ -1396,6 +1603,13 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Finds a seat button by its ID.
+     *
+     * @param parent the parent pane containing seat buttons
+     * @param seatId the seat ID to find
+     * @return the matching button or null if not found
+     */
     private Button findButtonBySeatId(Pane parent, String seatId) {
         String seatIdWithoutPrefix = seatId.substring(2);
         String row = seatIdWithoutPrefix.replaceAll("[0-9]", "");
@@ -1416,6 +1630,12 @@ public class TicketSalesPage extends VBox {
         return null;
     }
 
+    /**
+     * Handles deselection of wheelchair seat pairs.
+     *
+     * @param seat the seat button being deselected
+     * @param seatId the seat ID being deselected
+     */
     private void handleWheelchairPairDeselection(Button seat, String seatId) {
         // Check if this is an accessible seat with companion
         Optional<Seat> accessibleSeat = selectedSeats.stream()
@@ -1455,6 +1675,11 @@ public class TicketSalesPage extends VBox {
         resetSeatButtonStyle(seatId);
     }
 
+    /**
+     * Resets a seat button to its default style.
+     *
+     * @param seatId the seat ID to reset
+     */
     private void resetSeatButtonStyle(String seatId) {
         // Get the main seating plan pane from your VBox
         Pane seatingPlanPane = (Pane) this.getChildren().get(0); // Adjust index if needed
@@ -1485,6 +1710,12 @@ public class TicketSalesPage extends VBox {
             }
         }
     }
+
+    /**
+     * Retrieves all seats in the venue for adjacency calculations.
+     *
+     * @return complete list of seats in the venue
+     */
     private List<Seat> getAllSeatsInVenue() {
         List<Seat> allSeats = new ArrayList<>();
 
@@ -1518,6 +1749,10 @@ public class TicketSalesPage extends VBox {
         return allSeats;
     }
 
+    /**
+     * Shows the customer information dialog to complete booking.
+     * Handles both new and existing customer scenarios.
+     */
     private void showCustomerDialog() {
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
@@ -1638,6 +1873,13 @@ public class TicketSalesPage extends VBox {
         dialog.showAndWait();
     }
 
+
+    /**
+     * Persists current seat restrictions to the database.
+     * Saves both full and partial restrictions for the performance.
+     *
+     * @throws SQLException if database access fails during save operation
+     */
     private void saveSeatRestrictions() {
         try {
             RestrictedRepository.clearPerformanceRestrictions(selectedPerformance.getPerformanceId());
@@ -1657,6 +1899,16 @@ public class TicketSalesPage extends VBox {
         }
     }
 
+    /**
+     * Updates visual styling for all seats based on current state.
+     * Handles color coding for different seat statuses including:
+     * <ul>
+     *   <li>Booked</li>
+     *   <li>Selected</li>
+     *   <li>Accessible</li>
+     *   <li>Restricted</li>
+     * </ul>
+     */
     private void updateAllSeatColors() {
         Pane seatingPlanPane = (Pane) this.getChildren().getFirst();
         for (Node node : seatingPlanPane.getChildren()) {

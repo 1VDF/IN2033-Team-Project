@@ -18,13 +18,22 @@ import javafx.scene.layout.VBox;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * The GuestCheckInPage class represents the user interface for guest check-in within the box office system.
+ * It allows staff members to search for customer tickets by name and check in selected tickets.
+ */
 public class GuestCheckInPage extends VBox {
+
     private final TextField searchField;
     private final Button searchButton;
     private final TableView<TicketSale> ticketsTable;
     private final Button checkInButton;
     private final Label statusLabel;
 
+    /**
+     * Constructs a new GuestCheckInPage and initialises its user interface components.
+     * This includes the logo, search box, tickets table, status label, and check-in button.
+     */
     public GuestCheckInPage() {
         Image logoImage = new Image("boxoffice/data/lancaster_logo.png");
         ImageView logoView = new ImageView(logoImage);
@@ -48,7 +57,6 @@ public class GuestCheckInPage extends VBox {
 
         ticketsTable = new TableView<>();
         setupTableColumns();
-
 
         checkInButton = new Button("Check In Selected Ticket");
         checkInButton.setOnAction(e -> checkInTicket());
@@ -76,10 +84,9 @@ public class GuestCheckInPage extends VBox {
         statusLabel.setLayoutX(-50);
         statusLabel.setLayoutY(650);
 
-        HBox bottomBox = new HBox(880,checkInButton,backButton);
+        HBox bottomBox = new HBox(880, checkInButton, backButton);
 
-
-        this.getChildren().addAll(logoContainer,searchBox, ticketsTable,statusLabel,bottomBox);
+        this.getChildren().addAll(logoContainer, searchBox, ticketsTable, statusLabel, bottomBox);
         this.setSpacing(0);
         this.setPadding(new Insets(10));
 
@@ -88,14 +95,15 @@ public class GuestCheckInPage extends VBox {
         );
     }
 
+    /**
+     * Sets up the columns for the tickets table, including ticket ID, performance ID, seat, price, and checked-in status.
+     */
     private void setupTableColumns() {
         TableColumn<TicketSale, Integer> idCol = new TableColumn<>("Ticket ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("ticketSaleId"));
 
-
         TableColumn<TicketSale, Integer> performanceCol = new TableColumn<>("Performance ID");
         performanceCol.setCellValueFactory(new PropertyValueFactory<>("performanceID"));
-
 
         TableColumn<TicketSale, String> seatCol = new TableColumn<>("Seat");
         seatCol.setCellValueFactory(new PropertyValueFactory<>("seatID"));
@@ -109,6 +117,10 @@ public class GuestCheckInPage extends VBox {
         ticketsTable.getColumns().addAll(idCol, performanceCol, seatCol, priceCol, checkedInCol);
     }
 
+    /**
+     * Searches for tickets associated with the given customer name.
+     * If no tickets are found, an appropriate message is displayed. If tickets are found, they are displayed in the table.
+     */
     private void searchCustomerTickets() {
         String customerName = searchField.getText().trim();
 
@@ -133,6 +145,11 @@ public class GuestCheckInPage extends VBox {
         }
     }
 
+    /**
+     * Checks in the selected ticket in the table.
+     * If the ticket is already checked in, an appropriate message is displayed.
+     * If the check-in is successful, the status label is updated and the ticket is marked as checked in.
+     */
     private void checkInTicket() {
         TicketSale selectedTicket = ticketsTable.getSelectionModel().getSelectedItem();
 
